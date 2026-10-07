@@ -1,0 +1,19 @@
+# Keep the build context to what `npm ci` and `astro build` need.
+node_modules
+dist
+.astro
+.git
+.github
+.claude
+.vscode
+.idea
+tests
+test-results
+playwright-report
+blob-report
+coverage
+*.log
+.env
+.env.*
+Dockerfile
+.dockerignore

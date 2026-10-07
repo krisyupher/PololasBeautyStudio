@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Catalog website for **Pololas Beauty Studio**, a beauty, aesthetics and spa studio in Modelia, Bogotá (Instagram @pololasbeautystudio and a Facebook page, which are the source of the brand style and treatment list). Visitors browse treatments, collect them in "Mi pedido" and send the order as a prefilled WhatsApp message; an advisor confirms price, availability and logistics, at the studio or at the client's home. There is no backend, no prices are shown, and no personal data is stored.
 
-Stack: Astro 7 (static output) + strict TypeScript, vanilla TypeScript client scripts, scoped CSS with design tokens. Deployed to GitHub Pages at `https://krisyupher.github.io/PololasBeautyStudio/` by `.github/workflows/ci.yml` after lint, type checks and tests pass on `main`.
+Stack: Astro 7 (static output) + strict TypeScript, vanilla TypeScript client scripts, scoped CSS with design tokens. Deployed to GitHub Pages at `https://krisyupher.github.io/PololasBeautyStudio/` by `.github/workflows/ci.yml` after lint, type checks and tests pass on `main`. The `Dockerfile` also packages it as an unprivileged nginx image (port 8080) served from the domain root.
 
 ## Commands
 
@@ -22,9 +22,11 @@ npx vitest run src/lib/whatsapp.test.ts          # one unit test file
 npx vitest run -t "buildOrderMessage"            # tests by name
 npm run test:e2e       # Playwright: builds, serves on :4321, runs desktop + Pixel 7 projects
 npx playwright test tests/e2e/order.spec.ts --project=desktop   # one e2e file and project
+docker build -t pololas-beauty-studio .                          # image (SITE build arg = public URL)
+docker run --rm -p 8080:8080 pololas-beauty-studio               # http://localhost:8080/
 ```
 
-Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `playwright.config.ts`); CI installs Chromium.
+Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `playwright.config.ts`); CI installs Chromium. The e2e tests assume the default GitHub Pages base path, so don't run them with `SITE`/`BASE_PATH` set.
 
 ## Architecture
 
@@ -42,7 +44,8 @@ Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `pla
 
 ## Conventions and constraints
 
-- **Base path:** the site lives under `/PololasBeautyStudio/` with `trailingSlash: 'always'`. Build every internal URL with `withBase()`, `serviceUrl()` or `catalogUrl()`. In Playwright, navigate with relative paths (`page.goto('catalogo/')`).
+- **Base path and site URL** come from the `SITE` and `BASE_PATH` environment variables, defaulting to GitHub Pages (`/PololasBeautyStudio/`); the Dockerfile builds with `BASE_PATH=/`. `trailingSlash` is `'always'`. Never hardcode either: build every internal URL with `withBase()`, `serviceUrl()` or `catalogUrl()`, and absolute URLs from `import.meta.env.SITE` (as `schema.ts` and the `robots.txt.ts` endpoint do). In Playwright, navigate with relative paths (`page.goto('catalogo/')`).
+- **Docker serving:** `docker/nginx.conf` serves `dist/` from `/srv/www` with the custom 404, `no-cache` for pages and immutable caching for `/_astro/`. Security headers live in `docker/security-headers.conf` and must be re-included in every `location` that sets its own `add_header`, because nginx drops inherited headers there.
 - **CSP:** `security.csp` in `astro.config.mjs` emits a hashed meta CSP (`default-src 'self'`, `form-action 'none'`). Don't add inline `style=""` attributes, inline event handlers, `define:vars`, third-party scripts/fonts/iframes or `data:` assets; `vite.build.assetsInlineLimit` is 0 so small font files are never inlined. Write dynamic text with `textContent`. JSON placed inside `<script>` must escape `<`.
 - **Language:** UI copy is Spanish (es-CO, "tú"); code, comments and commit messages are English.
 - **Prices** are not shown ("Precio a consultar"). `price` is an optional field the owner may enable per treatment.

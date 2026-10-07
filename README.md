@@ -51,7 +51,25 @@ Images are picked up automatically at build time; until they exist, the site sho
 
 One-time setup: in the GitHub repository, open **Settings → Pages** and set **Source** to **GitHub Actions**.
 
-To use a custom domain later: add `public/CNAME`, set `site` in `astro.config.mjs` to the domain and remove `base`.
+To use a custom domain on GitHub Pages later: add `public/CNAME` and change the `SITE` and `BASE_PATH` defaults at the top of `astro.config.mjs` to the domain and `/`.
+
+### Docker
+
+The `Dockerfile` builds the site with Node and serves it with an unprivileged nginx on port 8080, from the root of the domain:
+
+```sh
+docker build -t pololas-beauty-studio .
+docker run --rm -p 8080:8080 pololas-beauty-studio
+# open http://localhost:8080/
+```
+
+For a real deployment, pass the public URL so canonical links, the sitemap, `robots.txt` and structured data point to it:
+
+```sh
+docker build --build-arg SITE=https://www.example.com -t pololas-beauty-studio .
+```
+
+nginx adds the security headers GitHub Pages can't send (including clickjacking protection), long-term caching for fingerprinted assets, gzip and the custom 404 page; its config is in `docker/`. The container has a health check. Put a TLS-terminating proxy or load balancer in front of it for HTTPS.
 
 ## Project agents
 
