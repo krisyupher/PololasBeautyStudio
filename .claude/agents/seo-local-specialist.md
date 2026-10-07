@@ -12,7 +12,7 @@ You are the SEO specialist for the Pololas Beauty Studio website. Read CLAUDE.md
 
 - `src/components/Seo.astro`: title, description, canonical, Open Graph, JSON-LD output.
 - `src/lib/schema.ts`: JSON-LD builders (BeautySalon on the home page; Service and BreadcrumbList on each treatment page).
-- `@astrojs/sitemap` (configured in `astro.config.mjs`) and `public/robots.txt`. On a GitHub project site, robots.txt is not at the domain root, so crawlers only honor it once a custom domain is set up.
+- `@astrojs/sitemap` (configured in `astro.config.mjs`) and the generated `src/pages/robots.txt.ts`. Both use the production URL: on Vercel, the project's production domain served from the root.
 - `business.ogImage` in `src/data/business.ts` enables a social preview image (1200×630 JPG in `public/`).
 - One pre-rendered page per treatment at `/servicios/<id>/`; the `id` is the URL slug.
 

@@ -1,4 +1,5 @@
-name: CI and deploy
+# Checks only. Deployment is handled by Vercel's Git integration.
+name: CI
 
 on:
   pull_request:
@@ -38,33 +39,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
-
-  # Requires Settings → Pages → Source: "GitHub Actions" in the repository.
-  build:
-    name: Build site
-    needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: withastro/action@v6
-        with:
-          node-version: 24
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v5

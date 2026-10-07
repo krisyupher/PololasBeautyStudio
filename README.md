@@ -4,7 +4,7 @@ Website and treatment catalog for **Pololas Beauty Studio**, a beauty, aesthetic
 
 Visitors browse the treatments, add them to **"Mi pedido"**, choose whether they want them at the studio or at home, and send the order as a prefilled WhatsApp message. An advisor then confirms price, availability and details. There is no backend, no prices are shown, and no personal data is stored.
 
-**Live site** (once GitHub Pages is enabled): https://krisyupher.github.io/PololasBeautyStudio/
+**Live site:** https://pololas-beauty-studio.vercel.app/
 
 ## Development
 
@@ -47,11 +47,13 @@ Images are picked up automatically at build time; until they exist, the site sho
 
 ## Deployment
 
-`.github/workflows/ci.yml` runs lint, type checks and all tests on every push and pull request. On `main` it then builds the site and deploys it to GitHub Pages.
+### Vercel
 
-One-time setup: in the GitHub repository, open **Settings → Pages** and set **Source** to **GitHub Actions**.
+Vercel deploys the site from GitHub through its Git integration (by default, pushes to `main` go to production). No settings are needed: the build detects Vercel and serves from the root of the project's production domain, which is also used for canonical links and the sitemap. Keep **Settings → Environment Variables → "Automatically expose System Environment Variables"** enabled (it is by default). `vercel.json` redirects URLs without a trailing slash and adds the security and caching headers.
 
-To use a custom domain on GitHub Pages later: add `public/CNAME` and change the `SITE` and `BASE_PATH` defaults at the top of `astro.config.mjs` to the domain and `/`.
+`.github/workflows/ci.yml` runs lint, type checks and all tests on every push and pull request; it does not deploy.
+
+Local development and the tests still use the base path `/PololasBeautyStudio/` (the site's original GitHub Pages address, see `astro.config.mjs`), which keeps every link checked under a sub-path.
 
 ### Docker
 
@@ -69,7 +71,7 @@ For a real deployment, pass the public URL so canonical links, the sitemap, `rob
 docker build --build-arg SITE=https://www.example.com -t pololas-beauty-studio .
 ```
 
-nginx adds the security headers GitHub Pages can't send (including clickjacking protection), long-term caching for fingerprinted assets, gzip and the custom 404 page; its config is in `docker/`. The container has a health check. Put a TLS-terminating proxy or load balancer in front of it for HTTPS.
+nginx adds the same security headers as Vercel (including clickjacking protection), long-term caching for fingerprinted assets, gzip and the custom 404 page; its config is in `docker/`. The container has a health check. Put a TLS-terminating proxy or load balancer in front of it for HTTPS.
 
 ## Project agents
 

@@ -10,14 +10,14 @@ You are the security reviewer for the Pololas Beauty Studio website. Read CLAUDE
 
 ## Threat model
 
-Static site on GitHub Pages: no backend, no accounts, no cookies, no analytics. The realistic risks are:
+Static site on Vercel (also packaged as an nginx Docker image): no backend, no accounts, no cookies, no analytics. The realistic risks are:
 
 - DOM XSS through URL parameters (`?q`, `?cat`, `?modo`) or tampered localStorage (`pololas:pedido:v1`).
 - Injection into the WhatsApp message or the `wa.me` URL.
 - Supply chain: npm dependencies and GitHub Actions.
 - Third-party scripts, embeds or fonts creeping in.
 - Personal data leaking or being stored (Colombian Ley 1581 de 2012).
-- CSP regressions. A meta CSP cannot set `frame-ancestors`, so clickjacking protection needs a custom domain or proxy that sends headers; note it as a known limitation, not a bug.
+- CSP and header regressions. A meta CSP cannot carry `frame-ancestors`, so clickjacking protection and the other security headers are sent by `vercel.json` and `docker/security-headers.conf`; check both exist and match.
 
 ## Checklist
 

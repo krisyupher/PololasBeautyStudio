@@ -19,7 +19,7 @@ COPY . .
 # Public URL used for canonical links, the sitemap, robots.txt and structured data.
 # Set it when building for a real domain: docker build --build-arg SITE=https://example.com .
 ARG SITE=http://localhost:8080
-# The container serves the site from the domain root (GitHub Pages uses /PololasBeautyStudio/).
+# The container serves the site from the domain root.
 ENV SITE=${SITE} \
     BASE_PATH=/
 RUN npm run build
