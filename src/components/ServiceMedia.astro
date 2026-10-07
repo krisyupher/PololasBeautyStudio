@@ -1,0 +1,91 @@
+---
+import { Image } from 'astro:assets';
+import LineIcon from './icons/LineIcon.astro';
+import type { IconName } from '../lib/constants';
+import { getServiceImage } from '../lib/images';
+
+interface Props {
+  id: string;
+  name: string;
+  icon: IconName;
+  variant?: 'card' | 'hero';
+}
+
+const { id, name, icon, variant = 'card' } = Astro.props;
+const image = getServiceImage(id);
+// On cards the photo is decorative (the title sits right below); on the detail page it describes.
+const alt = variant === 'hero' ? name : '';
+---
+
+<div class:list={['media', `media--${variant}`]}>
+  {image ? (
+    <Image
+      src={image}
+      alt={alt}
+      widths={variant === 'hero' ? [480, 800, 1200] : [360, 640]}
+      sizes={
+        variant === 'hero' ? '(min-width: 64rem) 34rem, 100vw' : '(min-width: 48rem) 22rem, 100vw'
+      }
+      loading={variant === 'hero' ? 'eager' : 'lazy'}
+      class="media__image"
+    />
+  ) : (
+    <div class="media__fallback">
+      <span class="media__circle">
+        <LineIcon name={icon} class="media__icon" strokeWidth={1.6} />
+      </span>
+    </div>
+  )}
+</div>
+
+<style>
+  .media {
+    position: relative;
+    overflow: hidden;
+    /* Wide banner on phones keeps the long catalog scannable; 4:3 from tablets up. */
+    aspect-ratio: 16 / 9;
+    background: var(--gradient-soft);
+  }
+
+  @media (min-width: 48rem) {
+    .media {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  /* After the media query on purpose: equal specificity, so source order keeps it square. */
+  .media--hero {
+    aspect-ratio: 1;
+    border-radius: var(--radius-lg);
+  }
+
+  .media :global(.media__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .media__fallback {
+    display: grid;
+    place-items: center;
+    height: 100%;
+  }
+
+  .media__circle {
+    display: grid;
+    place-items: center;
+    /* Sized from the height so it fits any aspect ratio. */
+    height: 68%;
+    aspect-ratio: 1;
+    border: 3px solid var(--color-white);
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    box-shadow: 0 0 0 6px rgb(255 255 255 / 0.45);
+    color: var(--color-primary);
+  }
+
+  .media :global(.media__icon) {
+    width: 64%;
+    height: 64%;
+  }
+</style>

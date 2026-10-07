@@ -1,0 +1,57 @@
+---
+import UiIcon from './icons/UiIcon.astro';
+import { buildInquiryMessage, buildWhatsAppUrl } from '../lib/whatsapp';
+
+interface Props {
+  topic?: string;
+}
+
+const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
+---
+
+<a
+  class="fab"
+  href={whatsappUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Escríbenos por WhatsApp (se abre en una pestaña nueva)"
+>
+  <UiIcon name="whatsapp" />
+</a>
+
+<style>
+  .fab {
+    position: fixed;
+    right: var(--space-6);
+    bottom: var(--space-6);
+    z-index: 30;
+    display: none;
+    place-items: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 50%;
+    background: var(--color-whatsapp);
+    color: var(--color-white);
+    box-shadow: var(--shadow-lg);
+    transition:
+      transform 0.2s var(--ease-out),
+      background-color 0.2s ease;
+  }
+
+  .fab:hover {
+    background: var(--color-whatsapp-strong);
+    color: var(--color-white);
+    transform: scale(1.06);
+  }
+
+  .fab :global(svg) {
+    width: 1.9rem;
+    height: 1.9rem;
+  }
+
+  @media (min-width: 48rem) {
+    .fab {
+      display: grid;
+    }
+  }
+</style>

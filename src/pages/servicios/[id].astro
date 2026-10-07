@@ -1,0 +1,276 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import ServiceMedia from '../../components/ServiceMedia.astro';
+import AddToOrderButton from '../../components/AddToOrderButton.astro';
+import UiIcon from '../../components/icons/UiIcon.astro';
+import { getCategories, getServices, type Category, type Service } from '../../lib/catalog';
+import { MODALITY_LABELS } from '../../lib/constants';
+import { formatPrice } from '../../lib/format';
+import { catalogUrl, serviceUrl, withBase } from '../../lib/paths';
+import { breadcrumbJsonLd, serviceJsonLd } from '../../lib/schema';
+import { buildInquiryMessage, buildWhatsAppUrl } from '../../lib/whatsapp';
+
+export async function getStaticPaths() {
+  const [categories, services] = await Promise.all([getCategories(), getServices()]);
+  return services.map((service) => {
+    const category = categories.find((item) => item.id === service.category);
+    if (!category) {
+      throw new Error(`Service "${service.id}" uses unknown category "${service.category}"`);
+    }
+    const related = services
+      .filter((item) => item.category === service.category && item.id !== service.id)
+      .slice(0, 3);
+    return { params: { id: service.id }, props: { service, category, related } };
+  });
+}
+
+interface Props {
+  service: Service;
+  category: Category;
+  related: Service[];
+}
+
+const { service, category, related } = Astro.props;
+const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(service.name));
+const crumbs = [
+  { label: 'Inicio', href: withBase('/') },
+  { label: 'Catálogo', href: catalogUrl() },
+  { label: category.name, href: catalogUrl({ cat: category.id }) },
+  { label: service.name },
+];
+---
+
+<BaseLayout
+  title={service.name}
+  description={`${service.summary} ${category.name} en Modelia, Bogotá, ${service.modalities.map((m) => MODALITY_LABELS[m].toLowerCase()).join(' o ')}.`}
+  whatsappTopic={service.name}
+  jsonLd={[
+    serviceJsonLd(service, category),
+    breadcrumbJsonLd([
+      { name: 'Inicio', path: withBase('/') },
+      { name: 'Catálogo', path: withBase('/catalogo/') },
+      { name: service.name, path: serviceUrl(service.id) },
+    ]),
+  ]}
+>
+  <section class="detail-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <div class="detail-hero__grid">
+        <ServiceMedia id={service.id} name={service.name} icon={service.icon} variant="hero" />
+        <div class="detail-hero__copy">
+          <p class="eyebrow">{category.name}</p>
+          <h1 class="detail__title">{service.name}</h1>
+          <p class="lead">{service.summary}</p>
+          <ul class="detail__meta" role="list" aria-label="Modalidades">
+            {service.modalities.map((modality) => (
+              <li class="pill">{MODALITY_LABELS[modality]}</li>
+            ))}
+            {service.requiresAssessment && <li class="pill pill--outline">Valoración previa</li>}
+          </ul>
+          <p class="detail__price">
+            {formatPrice(service.price)}
+            {service.duration && <span> · Duración aproximada: {service.duration}</span>}
+          </p>
+          <div class="detail__actions">
+            <AddToOrderButton id={service.id} name={service.name} />
+            <a
+              class="btn btn--whatsapp"
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <UiIcon name="whatsapp" />
+              Preguntar por WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container detail-body">
+      <div class="prose">
+        <h2>Sobre el tratamiento</h2>
+        <p>{service.description}</p>
+        <h2>Beneficios</h2>
+        <ul class="benefits" role="list">
+          {service.benefits.map((benefit) => (
+            <li>
+              <UiIcon name="check" />
+              {benefit}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <aside class="detail-aside" aria-label="Información para tu cita">
+        {service.requiresAssessment && (
+          <div class="callout">
+            <h2>Antes de tu procedimiento</h2>
+            <p>
+              Realizamos una valoración previa para confirmar que el tratamiento es adecuado para ti
+              y definir el protocolo. Los resultados varían según cada persona.
+            </p>
+          </div>
+        )}
+        <div class="callout callout--soft">
+          <h2>¿Cómo lo pido?</h2>
+          <ol>
+            <li>Agrégalo a tu pedido.</li>
+            <li>Elige si lo quieres en el estudio o a domicilio.</li>
+            <li>Envíanos el pedido por WhatsApp y te confirmamos precio y disponibilidad.</li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="section section--soft" aria-labelledby="relacionados-title">
+      <div class="container">
+        <header class="section__header">
+          <h2 id="relacionados-title" class="title">
+            También te puede <span class="script">interesar</span>
+          </h2>
+        </header>
+        <ul class="card-grid" role="list">
+          {related.map((item) => (
+            <li>
+              <ServiceCard service={item} categoryName={category.name} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .detail-hero {
+    padding-block: var(--space-8) var(--space-12);
+    background: var(--gradient-soft);
+  }
+
+  .detail-hero__grid {
+    display: grid;
+    align-items: center;
+    gap: var(--space-8);
+    margin-top: var(--space-6);
+  }
+
+  .detail-hero__grid > :global(.media) {
+    width: min(100%, 26rem);
+    justify-self: center;
+    border: 6px solid var(--color-white);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .detail-hero__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+  }
+
+  .detail__title {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .detail__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Pills sit on the lilac hero, so give them a white fill for contrast. */
+  .detail__meta .pill {
+    background: var(--color-white);
+  }
+
+  .detail__price {
+    color: var(--color-plum-900);
+    font-weight: 600;
+  }
+
+  .detail__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .detail-body {
+    display: grid;
+    gap: var(--space-10);
+  }
+
+  .benefits {
+    display: grid;
+    gap: var(--space-3);
+    padding: 0;
+  }
+
+  .benefits li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .benefits :global(svg) {
+    flex: none;
+    width: 1.4rem;
+    height: 1.4rem;
+    padding: 0.2rem;
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    color: var(--color-primary);
+  }
+
+  .detail-aside {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+  }
+
+  .callout {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .callout--soft {
+    border-left-color: var(--color-orchid-400);
+    background: var(--color-bg-soft);
+    box-shadow: none;
+  }
+
+  .callout h2 {
+    font-size: var(--text-base);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .callout ol {
+    display: grid;
+    gap: var(--space-2);
+    padding-left: var(--space-5);
+  }
+
+  @media (min-width: 64rem) {
+    .detail-hero__grid {
+      grid-template-columns: 0.9fr 1.1fr;
+    }
+
+    .detail-body {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+</style>

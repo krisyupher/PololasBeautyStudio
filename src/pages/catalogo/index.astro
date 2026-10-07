@@ -1,0 +1,269 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import UiIcon from '../../components/icons/UiIcon.astro';
+import { getCategories, getServices } from '../../lib/catalog';
+import { LIMITS, MODALITIES, MODALITY_LABELS } from '../../lib/constants';
+import { withBase } from '../../lib/paths';
+import { breadcrumbJsonLd } from '../../lib/schema';
+import { buildSearchText } from '../../lib/search';
+import { buildInquiryMessage, buildWhatsAppUrl } from '../../lib/whatsapp';
+
+const [categories, services] = await Promise.all([getCategories(), getServices()]);
+const groups = categories
+  .map((category) => ({
+    category,
+    services: services.filter((service) => service.category === category.id),
+  }))
+  .filter((group) => group.services.length > 0);
+const whatsappUrl = buildWhatsAppUrl(
+  buildInquiryMessage('un tratamiento que no encontré en el catálogo'),
+);
+---
+
+<BaseLayout
+  title="Catálogo de tratamientos"
+  description="Armonización facial, cuidado de la piel, masajes, tratamientos corporales y depilación en Modelia, Bogotá, en el estudio o a domicilio. Arma tu pedido y confírmalo por WhatsApp."
+  jsonLd={[
+    breadcrumbJsonLd([
+      { name: 'Inicio', path: withBase('/') },
+      { name: 'Catálogo', path: withBase('/catalogo/') },
+    ]),
+  ]}
+>
+  <section class="page-hero">
+    <div class="container page-hero__inner">
+      <Breadcrumbs items={[{ label: 'Inicio', href: withBase('/') }, { label: 'Catálogo' }]} />
+      <h1 class="title">
+        Catálogo de <span class="script">tratamientos</span>
+      </h1>
+      <p class="lead">
+        Busca y filtra por categoría o modalidad. Agrega a tu pedido lo que te interesa y envíanoslo
+        por WhatsApp: te confirmamos precio, disponibilidad y detalles.
+      </p>
+    </div>
+  </section>
+
+  <div class="container catalog" data-catalog>
+    <form
+      class="catalog-filters"
+      role="search"
+      aria-label="Filtrar tratamientos"
+      data-catalog-form
+      data-needs-js
+    >
+      <div class="search-field">
+        <label for="catalog-search" class="visually-hidden">
+          Buscar tratamiento
+        </label>
+        <UiIcon name="search" />
+        <input
+          id="catalog-search"
+          type="search"
+          name="q"
+          placeholder="Busca: botox, labios, masaje…"
+          maxlength={LIMITS.maxQuery}
+          autocomplete="off"
+          data-catalog-search
+        />
+      </div>
+      <div class="chip-row" role="group" aria-label="Categoría">
+        <button type="button" class="chip" data-filter-category="" aria-pressed="true">
+          Todas
+        </button>
+        {categories.map((category) => (
+          <button
+            type="button"
+            class="chip"
+            data-filter-category={category.id}
+            aria-pressed="false"
+          >
+            {category.shortName}
+          </button>
+        ))}
+      </div>
+      <div class="chip-row" role="group" aria-label="Modalidad">
+        <button type="button" class="chip" data-filter-modality="" aria-pressed="true">
+          Estudio y domicilio
+        </button>
+        {MODALITIES.map((modality) => (
+          <button type="button" class="chip" data-filter-modality={modality} aria-pressed="false">
+            {MODALITY_LABELS[modality]}
+          </button>
+        ))}
+      </div>
+    </form>
+
+    <p class="catalog__count" aria-live="polite" data-results-count>
+      {services.length} tratamientos
+    </p>
+
+    {groups.map(({ category, services: items }) => (
+      <section
+        class="catalog-group"
+        aria-labelledby={`grupo-${category.id}`}
+        data-category-group={category.id}
+      >
+        <header class="catalog-group__header">
+          <h2 id={`grupo-${category.id}`} class="catalog-group__title">
+            {category.name}
+          </h2>
+          <p>{category.description}</p>
+        </header>
+        <ul class="card-grid" role="list">
+          {items.map((service) => (
+            <li
+              data-service-card
+              data-category={service.category}
+              data-modalities={service.modalities.join(' ')}
+              data-search={buildSearchText({
+                name: service.name,
+                summary: service.summary,
+                tags: service.tags,
+                categoryName: category.name,
+              })}
+            >
+              <ServiceCard service={service} categoryName={category.name} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <div class="catalog-empty" data-catalog-empty hidden>
+      <p class="catalog-empty__title">No encontramos tratamientos con esos filtros</p>
+      <p>¿No encuentras lo que buscas? Escríbenos y te asesoramos.</p>
+      <div class="catalog-empty__actions">
+        <button type="button" class="btn btn--outline" data-reset-filters>
+          Ver todos
+        </button>
+        <a class="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+          <UiIcon name="whatsapp" />
+          Escríbenos
+        </a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import '../../scripts/catalog-filters';
+</script>
+
+<style>
+  .page-hero {
+    padding-block: var(--space-10) var(--space-8);
+    background: var(--gradient-soft);
+  }
+
+  .page-hero__inner {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .page-hero .lead {
+    max-width: 44rem;
+  }
+
+  .catalog {
+    padding-block: var(--space-8) var(--space-16);
+  }
+
+  .catalog-filters {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .search-field {
+    position: relative;
+    max-width: 34rem;
+  }
+
+  .search-field :global(svg) {
+    position: absolute;
+    top: 50%;
+    left: var(--space-4);
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-text-muted);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .search-field input {
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-4) var(--space-2) var(--space-12);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .search-field input:focus-visible {
+    outline-offset: 0;
+    border-color: var(--color-primary);
+  }
+
+  .catalog__count {
+    margin-bottom: var(--space-6);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .catalog-group + .catalog-group {
+    margin-top: var(--space-12);
+  }
+
+  .catalog-group__header {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--color-lilac-200);
+  }
+
+  .catalog-group__title {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .catalog-group__header p {
+    color: var(--color-text-muted);
+  }
+
+  .catalog-empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-12) var(--space-6);
+    border: 2px dashed var(--color-lilac-200);
+    border-radius: var(--radius-lg);
+    text-align: center;
+  }
+
+  .catalog-empty__title {
+    color: var(--color-plum-900);
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+
+  .catalog-empty__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 64rem) {
+    .catalog-filters {
+      position: sticky;
+      top: var(--header-h);
+      z-index: 20;
+      padding-block: var(--space-3);
+      background: rgb(255 255 255 / 0.96);
+    }
+  }
+</style>

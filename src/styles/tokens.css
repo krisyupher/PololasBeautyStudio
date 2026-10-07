@@ -1,0 +1,92 @@
+/*
+ * Brand tokens, sampled by eye from the logo and the Instagram posts.
+ * Replace the hex values with exact ones once the original logo files are available.
+ */
+:root {
+  /* Palette */
+  --color-plum-900: #4a1450;
+  --color-purple-700: #8e2a8e;
+  --color-magenta-600: #a8329f;
+  --color-orchid-400: #c77dcb;
+  --color-lilac-200: #efcdf1;
+  --color-lilac-100: #f6e4f7;
+  --color-blush-50: #fbf3fb;
+  --color-white: #ffffff;
+  --color-gray-600: #6b6b70;
+  --color-gray-800: #3a3540;
+  /* WhatsApp green darkened so white text/icons pass WCAG AA (5.4:1). */
+  --color-whatsapp: #0f7a43;
+  --color-whatsapp-strong: #0b6236;
+
+  /* Semantic roles */
+  --color-bg: var(--color-white);
+  --color-bg-soft: var(--color-blush-50);
+  --color-surface: var(--color-white);
+  --color-text: var(--color-gray-800);
+  --color-text-muted: var(--color-gray-600);
+  --color-heading: var(--color-plum-900);
+  --color-primary: var(--color-purple-700);
+  --color-primary-strong: var(--color-plum-900);
+  --color-accent: var(--color-magenta-600);
+  --color-border: #ead5ec;
+  --color-focus: var(--color-magenta-600);
+
+  --gradient-brand: linear-gradient(135deg, var(--color-purple-700), var(--color-magenta-600));
+  --gradient-soft: linear-gradient(
+    160deg,
+    var(--color-blush-50) 0%,
+    var(--color-lilac-100) 55%,
+    var(--color-lilac-200) 100%
+  );
+
+  /* Typography: Montserrat for text and bold uppercase headings, Great Vibes for script accents */
+  --font-sans: 'Montserrat Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-script: 'Great Vibes', 'Brush Script MT', cursive;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);
+  --text-3xl: clamp(2rem, 1.3rem + 2.8vw, 3.25rem);
+  --text-script: clamp(2.4rem, 1.6rem + 3.4vw, 4rem);
+  --leading-tight: 1.15;
+  --leading-normal: 1.6;
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  /* Shape and depth */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 3px rgb(74 20 80 / 0.08);
+  --shadow-md: 0 10px 28px rgb(74 20 80 / 0.12);
+  --shadow-lg: 0 20px 50px rgb(74 20 80 / 0.18);
+
+  /* Layout */
+  --container: 72rem;
+  --gutter: 1rem;
+  --header-h: 4.25rem;
+  --mobile-bar-h: 4.5rem;
+  --tap-min: 2.75rem;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --gutter: 2rem;
+  }
+}

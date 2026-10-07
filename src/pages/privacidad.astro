@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { business } from '../data/business';
+import { withBase } from '../lib/paths';
+
+// TODO(dueña): revisar este texto con asesoría legal antes de publicarlo como política definitiva.
+---
+
+<BaseLayout
+  title="Política de privacidad"
+  description={`Cómo ${business.name} trata tus datos personales cuando usas este sitio y nos escribes por WhatsApp.`}
+>
+  <section class="section">
+    <div class="container prose">
+      <Breadcrumbs items={[{ label: 'Inicio', href: withBase('/') }, { label: 'Privacidad' }]} />
+      <h1 class="title">
+        Política de <span class="script">privacidad</span>
+      </h1>
+
+      <p>
+        En {business.name} respetamos tu privacidad. Esta política explica qué datos se usan cuando
+        navegas por este sitio y cuando nos envías un pedido, de acuerdo con la Ley 1581 de 2012 de
+        protección de datos personales en Colombia.
+      </p>
+
+      <h2>Responsable</h2>
+      <p>
+        {business.name}, {business.location.neighborhood}, {business.location.city},{' '}
+        {business.location.country}. Correo:{' '}
+        <a href={`mailto:${business.email}`}>{business.email}</a>. WhatsApp:{' '}
+        {business.whatsapp.display}.
+      </p>
+
+      <h2>Qué datos usamos</h2>
+      <ul>
+        <li>
+          Este sitio no usa cookies, ni herramientas de analítica o publicidad, y no envía tus datos
+          a ningún servidor.
+        </li>
+        <li>
+          Los tratamientos que agregas a "Mi pedido" se guardan solo en tu navegador para que no los
+          pierdas. Tu nombre y los demás datos del formulario no se guardan.
+        </li>
+        <li>
+          Cuando presionas "Enviar pedido por WhatsApp", se abre WhatsApp con un mensaje que tú
+          revisas y decides enviar. Ese mensaje incluye los tratamientos y los datos opcionales que
+          hayas escrito.
+        </li>
+      </ul>
+
+      <h2>Para qué los usamos</h2>
+      <p>
+        Usamos la información que nos envías para responder tu solicitud, cotizar, agendar tu cita y
+        coordinar el servicio en el estudio o a domicilio.
+      </p>
+
+      <h2>Servicios de terceros</h2>
+      <p>
+        WhatsApp, Instagram y Facebook son servicios de Meta con sus propias políticas de
+        privacidad. Al escribirnos por esos canales, también aplican sus condiciones.
+      </p>
+
+      <h2>Tus derechos</h2>
+      <p>
+        Puedes conocer, actualizar, rectificar y solicitar la eliminación de tus datos, así como
+        revocar tu autorización, escribiéndonos a{' '}
+        <a href={`mailto:${business.email}`}>{business.email}</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

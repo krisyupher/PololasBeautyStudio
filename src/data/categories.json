@@ -1,0 +1,42 @@
+[
+  {
+    "id": "armonizacion-facial",
+    "name": "Armonización facial",
+    "shortName": "Armonización",
+    "description": "Procedimientos inyectables para resaltar tu rostro con naturalidad, siempre con valoración previa.",
+    "icon": "face",
+    "order": 1
+  },
+  {
+    "id": "cuidado-facial",
+    "name": "Cuidado facial",
+    "shortName": "Facial",
+    "description": "Tratamientos para una piel luminosa, uniforme y saludable.",
+    "icon": "sparkle",
+    "order": 2
+  },
+  {
+    "id": "spa-masajes",
+    "name": "Spa y masajes",
+    "shortName": "Spa",
+    "description": "Masajes y rituales para desconectarte, respirar y dejarte cuidar.",
+    "icon": "lotus",
+    "order": 3
+  },
+  {
+    "id": "corporal",
+    "name": "Corporal y moldeo",
+    "shortName": "Corporal",
+    "description": "Masajes y paquetes para moldear, tonificar y reafirmar tu figura.",
+    "icon": "body",
+    "order": 4
+  },
+  {
+    "id": "depilacion",
+    "name": "Depilación",
+    "shortName": "Depilación",
+    "description": "Piel suave y exfoliada, por zonas o completa.",
+    "icon": "leg",
+    "order": 5
+  }
+]

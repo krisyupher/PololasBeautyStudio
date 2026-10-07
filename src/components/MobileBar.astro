@@ -1,0 +1,65 @@
+---
+import UiIcon from './icons/UiIcon.astro';
+import { buildInquiryMessage, buildWhatsAppUrl } from '../lib/whatsapp';
+
+interface Props {
+  topic?: string;
+}
+
+const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
+---
+
+<!-- Fixed action bar for phones, where most visitors arrive from Instagram/Facebook. -->
+<div class="mobile-bar">
+  <button
+    type="button"
+    class="btn btn--primary"
+    data-open-order
+    data-needs-js
+    aria-haspopup="dialog"
+    aria-controls="order-dialog"
+  >
+    <UiIcon name="bag" />
+    Mi pedido
+    <span class="mobile-bar__badge" data-order-count hidden>
+      0
+    </span>
+  </button>
+  <a class="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+    <UiIcon name="whatsapp" />
+    WhatsApp
+  </a>
+</div>
+
+<style>
+  .mobile-bar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--gutter) max(var(--space-3), env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border);
+    background: rgb(255 255 255 / 0.96);
+    backdrop-filter: blur(10px);
+  }
+
+  .mobile-bar__badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding-inline: 0.35rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    color: var(--color-primary);
+    font-size: var(--text-xs);
+  }
+
+  @media (min-width: 48rem) {
+    .mobile-bar {
+      display: none;
+    }
+  }
+</style>

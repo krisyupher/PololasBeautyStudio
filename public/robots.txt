@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://krisyupher.github.io/PololasBeautyStudio/sitemap-index.xml

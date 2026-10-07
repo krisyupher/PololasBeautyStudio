@@ -1,0 +1,110 @@
+---
+import { Image } from 'astro:assets';
+import { business } from '../data/business';
+import { getLogoImage } from '../lib/images';
+import { withBase } from '../lib/paths';
+
+interface Props {
+  variant?: 'header' | 'footer';
+}
+
+const { variant = 'header' } = Astro.props;
+const logo = getLogoImage();
+---
+
+<a
+  class:list={['logo', `logo--${variant}`]}
+  href={withBase('/')}
+  aria-label={`${business.name}, ir al inicio`}
+>
+  {logo ? (
+    <Image src={logo} alt="" class="logo__image" height={variant === 'header' ? 48 : 72} />
+  ) : (
+    <>
+      <span class="logo__mark" aria-hidden="true">
+        P
+      </span>
+      <span class="logo__text" aria-hidden="true">
+        <span class="logo__script">Pololas</span>
+        <span class="logo__caption">Beauty Studio</span>
+      </span>
+    </>
+  )}
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .logo__mark {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    color: var(--color-primary);
+    font-family: var(--font-script);
+    font-size: 1.9rem;
+    line-height: 1;
+    padding-top: 0.3rem;
+  }
+
+  .logo__text {
+    display: grid;
+    line-height: 1;
+  }
+
+  .logo__script {
+    font-family: var(--font-script);
+    font-size: 2rem;
+    color: var(--color-primary);
+    background: var(--gradient-brand);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-right: 0.15em;
+  }
+
+  .logo__caption {
+    margin-top: -0.1rem;
+    padding-bottom: 0.15rem;
+    border-bottom: 1px solid currentColor;
+    color: var(--color-text-muted);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  .logo--footer .logo__mark {
+    width: 3.2rem;
+    height: 3.2rem;
+    font-size: 2.3rem;
+  }
+
+  .logo--footer .logo__script {
+    font-size: 2.6rem;
+  }
+
+  .logo--footer .logo__caption {
+    font-size: 0.7rem;
+  }
+
+  .logo :global(.logo__image) {
+    width: auto;
+  }
+
+  .logo--header :global(.logo__image) {
+    height: 48px;
+  }
+
+  .logo--footer :global(.logo__image) {
+    height: 72px;
+  }
+</style>

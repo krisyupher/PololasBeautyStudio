@@ -1,0 +1,41 @@
+---
+import UiIcon from './icons/UiIcon.astro';
+
+interface Props {
+  id: string;
+  name: string;
+  size?: 'sm' | 'md';
+}
+
+const { id, name, size = 'md' } = Astro.props;
+---
+
+<!--
+  Enhanced by src/scripts/order-ui.ts, which also keeps aria-label in sync with the state.
+  Invisible (but space-reserving) without JavaScript.
+-->
+<button
+  type="button"
+  class:list={['btn', 'btn--primary', { 'btn--sm': size === 'sm' }]}
+  data-add-to-order={id}
+  data-name={name}
+  aria-label={`Agregar al pedido: ${name}`}
+  data-needs-js
+>
+  <span class="add-label" data-label-add>
+    <UiIcon name="plus" />
+    Agregar al pedido
+  </span>
+  <span class="add-label" data-label-added hidden>
+    <UiIcon name="check" />
+    En tu pedido
+  </span>
+</button>
+
+<style>
+  .add-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+</style>

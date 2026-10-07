@@ -1,0 +1,29 @@
+---
+import type { IconName } from '../../lib/constants';
+import { LINE_ICONS } from './line-icons';
+
+interface Props {
+  name: IconName;
+  class?: string;
+  /** Visual line weight in viewBox units (the viewBox is 64×64). */
+  strokeWidth?: number;
+}
+
+const { name, class: className, strokeWidth = 1.8 } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 64 64"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {LINE_ICONS[name].map((d) => (
+    <path d={d} />
+  ))}
+</svg>

@@ -1,0 +1,208 @@
+---
+import Logo from './Logo.astro';
+import UiIcon from './icons/UiIcon.astro';
+import { withBase } from '../lib/paths';
+
+const links = [
+  { href: withBase('/'), label: 'Inicio' },
+  { href: withBase('/catalogo/'), label: 'Catálogo' },
+  { href: withBase('/#como-pedir'), label: 'Cómo pedir' },
+  { href: withBase('/#modalidades'), label: 'Estudio y domicilio' },
+  { href: withBase('/#contacto'), label: 'Contacto' },
+];
+const current = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <Logo />
+
+    <nav class="site-nav site-nav--desktop" aria-label="Principal">
+      <ul role="list">
+        {links.map((link) => (
+          <li>
+            <a href={link.href} aria-current={link.href === current ? 'page' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <button
+        type="button"
+        class="order-button"
+        data-open-order
+        data-needs-js
+        aria-haspopup="dialog"
+        aria-controls="order-dialog"
+      >
+        <UiIcon name="bag" />
+        <span>Mi pedido</span>
+        <span class="order-badge" data-order-count hidden>
+          0
+        </span>
+      </button>
+
+      <details class="site-nav site-nav--mobile" data-mobile-menu>
+        <summary class="icon-button" aria-label="Menú">
+          <UiIcon name="menu" />
+        </summary>
+        <nav aria-label="Menú principal">
+          <ul role="list">
+            {links.map((link) => (
+              <li>
+                <a href={link.href} aria-current={link.href === current ? 'page' : undefined}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid var(--color-border);
+    background: rgb(255 255 255 / 0.94);
+    backdrop-filter: blur(10px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--header-h);
+  }
+
+  .site-nav ul {
+    display: flex;
+    gap: var(--space-6);
+  }
+
+  .site-nav a {
+    color: var(--color-plum-900);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .site-nav a:hover,
+  .site-nav a[aria-current='page'] {
+    color: var(--color-accent);
+  }
+
+  .site-nav--desktop {
+    display: none;
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .order-button {
+    position: relative;
+    display: none;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    color: var(--color-primary);
+    font-size: var(--text-sm);
+    font-weight: 700;
+  }
+
+  .order-button:hover {
+    background: var(--color-lilac-100);
+  }
+
+  .order-button :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Positioned on the corner so the header doesn't shift when the first item is added. */
+  .order-badge {
+    position: absolute;
+    top: -0.45rem;
+    right: -0.45rem;
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    border: 2px solid var(--color-white);
+    box-sizing: content-box;
+    padding-inline: 0.35rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent);
+    color: var(--color-white);
+    font-size: var(--text-xs);
+  }
+
+  .site-nav--mobile {
+    position: relative;
+  }
+
+  .site-nav--mobile summary {
+    list-style: none;
+  }
+
+  .site-nav--mobile summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-nav--mobile nav {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    min-width: 15rem;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .site-nav--mobile ul {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .site-nav--mobile a {
+    display: block;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+  }
+
+  .site-nav--mobile a:hover {
+    background: var(--color-lilac-100);
+  }
+
+  @media (min-width: 48rem) {
+    .order-button {
+      display: inline-flex;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .site-nav--desktop {
+      display: block;
+    }
+
+    .site-nav--mobile {
+      display: none;
+    }
+  }
+</style>

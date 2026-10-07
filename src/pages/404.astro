@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LineIcon from '../components/icons/LineIcon.astro';
+import { catalogUrl, withBase } from '../lib/paths';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página que buscas no existe. Explora nuestro catálogo de tratamientos."
+  noindex
+>
+  <section class="section not-found">
+    <div class="container not-found__inner">
+      <span class="not-found__icon">
+        <LineIcon name="lotus" />
+      </span>
+      <h1 class="title">
+        Esta página se fue a <span class="script">relajar</span>
+      </h1>
+      <p class="lead">No encontramos lo que buscabas, pero tenemos muchos tratamientos para ti.</p>
+      <div class="not-found__actions">
+        <a class="btn btn--primary" href={catalogUrl()}>
+          Ver catálogo
+        </a>
+        <a class="btn btn--outline" href={withBase('/')}>
+          Ir al inicio
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found__inner {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-5);
+    text-align: center;
+  }
+
+  .not-found__icon {
+    display: grid;
+    place-items: center;
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    color: var(--color-primary);
+  }
+
+  .not-found__icon :global(svg) {
+    width: 70%;
+    height: 70%;
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+</style>

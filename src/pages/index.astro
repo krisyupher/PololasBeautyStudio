@@ -1,0 +1,842 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Petals from '../components/Petals.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import LineIcon from '../components/icons/LineIcon.astro';
+import UiIcon from '../components/icons/UiIcon.astro';
+import { business } from '../data/business';
+import { faqs } from '../data/faq';
+import { testimonials } from '../data/testimonials';
+import { getCategories, getServices } from '../lib/catalog';
+import type { IconName } from '../lib/constants';
+import { getHeroImage } from '../lib/images';
+import { catalogUrl, serviceUrl } from '../lib/paths';
+import { businessJsonLd } from '../lib/schema';
+import { buildInquiryMessage, buildWhatsAppUrl } from '../lib/whatsapp';
+
+const [categories, services] = await Promise.all([getCategories(), getServices()]);
+const categoryName = new Map(categories.map((category) => [category.id, category.name]));
+const serviceIds = new Set(services.map((service) => service.id));
+const featured = services.filter((service) => service.featured);
+const heroImage = getHeroImage();
+const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
+
+// Mirrors the Instagram highlights (Botox, Labios, Rino, Bioestimulador) plus the other categories.
+const highlights: { label: string; icon: IconName; href: string }[] = [
+  ...[
+    { id: 'botox', label: 'Botox', icon: 'face' as const },
+    { id: 'labios', label: 'Labios', icon: 'lips' as const },
+    { id: 'rinomodelacion', label: 'Rino', icon: 'nose' as const },
+    { id: 'bioestimuladores', label: 'Bioestimulador', icon: 'profile' as const },
+  ]
+    .filter((item) => serviceIds.has(item.id))
+    .map((item) => ({ label: item.label, icon: item.icon, href: serviceUrl(item.id) })),
+  ...categories
+    .filter((category) => category.id !== 'armonizacion-facial')
+    .map((category) => ({
+      label: category.shortName,
+      icon: category.icon,
+      href: catalogUrl({ cat: category.id }),
+    })),
+];
+
+const steps = [
+  {
+    title: 'Elige',
+    text: 'Explora el catálogo y agrega a tu pedido los tratamientos que te interesan.',
+  },
+  {
+    title: 'Personaliza',
+    text: 'Indica si los quieres en el estudio o a domicilio, y para cuántas personas.',
+  },
+  {
+    title: 'Confirma por WhatsApp',
+    text: 'Envíanos tu pedido. Una asesora te confirma precio, disponibilidad y detalles.',
+  },
+];
+
+const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienestar'];
+---
+
+<BaseLayout
+  title={business.name}
+  description={`${business.description} ${business.slogan}`}
+  jsonLd={[businessJsonLd(categories, services)]}
+>
+  <section class="hero">
+    <Petals />
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <p class="eyebrow">
+          Spa y estética · {business.location.neighborhood}, {business.location.city}
+        </p>
+        <h1 class="hero__title">
+          <span class="hero__title-top">Descubre tu</span>
+          <span class="script hero__title-script">mejor versión</span>
+        </h1>
+        <p class="pill pill--strong hero__tagline">{business.tagline}</p>
+        <p class="lead">
+          Armonización facial, cuidado de la piel, masajes y tratamientos corporales con resultados
+          naturales. Arma tu pedido y confírmalo por WhatsApp: en nuestro estudio o en la comodidad
+          de tu casa.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href={catalogUrl()}>
+            Ver catálogo
+            <UiIcon name="arrow-right" />
+          </a>
+          <a class="btn btn--outline" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+            <UiIcon name="whatsapp" />
+            Escríbenos
+          </a>
+        </div>
+        <ul class="hero__badges" role="list">
+          <li>
+            <UiIcon name="home" /> En el estudio o a domicilio
+          </li>
+          <li>
+            <UiIcon name="check" /> Valoración personalizada
+          </li>
+          <li>
+            <UiIcon name="check" /> Resultados naturales
+          </li>
+        </ul>
+      </div>
+
+      <div class="hero__visual">
+        {heroImage ? (
+          <Image
+            src={heroImage}
+            alt={`Tratamiento en ${business.name}`}
+            widths={[480, 800, 1100]}
+            sizes="(min-width: 64rem) 32rem, 90vw"
+            loading="eager"
+            class="hero__image"
+          />
+        ) : (
+          <div class="hero__art" aria-hidden="true">
+            <span class="hero__ring">
+              <LineIcon name="profile" class="hero__art-icon" strokeWidth={1.2} />
+            </span>
+            <span class="hero__orbit hero__orbit--1">
+              <LineIcon name="lips" />
+            </span>
+            <span class="hero__orbit hero__orbit--2">
+              <LineIcon name="lotus" />
+            </span>
+            <span class="hero__orbit hero__orbit--3">
+              <LineIcon name="sparkle" />
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="section highlights" aria-labelledby="explora-title">
+    <div class="container">
+      <h2 id="explora-title" class="visually-hidden">
+        Explora por tratamiento
+      </h2>
+      <ul class="highlights__list" role="list">
+        {highlights.map((item) => (
+          <li>
+            <a class="highlight" href={item.href}>
+              <span class="highlight__circle">
+                <LineIcon name={item.icon} />
+              </span>
+              <span class="highlight__label">{item.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--soft" aria-labelledby="destacados-title">
+    <div class="container">
+      <header class="section__header">
+        <p class="eyebrow">Favoritos de nuestras clientas</p>
+        <h2 id="destacados-title" class="title">
+          Tratamientos <span class="script">destacados</span>
+        </h2>
+        <p class="lead">
+          Pequeños retoques, grandes cambios en cómo te miras al espejo. Siempre con naturalidad.
+        </p>
+      </header>
+      <ul class="card-grid" role="list">
+        {featured.map((service) => (
+          <li>
+            <ServiceCard
+              service={service}
+              categoryName={categoryName.get(service.category) ?? ''}
+            />
+          </li>
+        ))}
+      </ul>
+      <p class="center-action">
+        <a class="btn btn--outline" href={catalogUrl()}>
+          Ver los {services.length} tratamientos
+          <UiIcon name="arrow-right" />
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="como-pedir" aria-labelledby="como-pedir-title">
+    <div class="container">
+      <header class="section__header section__header--center">
+        <p class="eyebrow">Fácil y sin compromiso</p>
+        <h2 id="como-pedir-title" class="title">
+          Cómo <span class="script">pedir</span>
+        </h2>
+      </header>
+      <ol class="steps" role="list">
+        {steps.map((step, index) => (
+          <li class="step">
+            <span class="step__number" aria-hidden="true">
+              {index + 1}
+            </span>
+            <h3 class="step__title">
+              <span class="visually-hidden">Paso {index + 1}: </span>
+              {step.title}
+            </h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--soft" id="modalidades" aria-labelledby="modalidades-title">
+    <div class="container">
+      <header class="section__header section__header--center">
+        <p class="eyebrow">Tú eliges dónde</p>
+        <h2 id="modalidades-title" class="title">
+          En el estudio <span class="script">o en tu casa</span>
+        </h2>
+      </header>
+      <div class="modes">
+        <article class="mode">
+          <span class="mode__icon">
+            <UiIcon name="studio" />
+          </span>
+          <h3>En el estudio</h3>
+          <p>
+            Te esperamos en nuestro estudio en {business.location.neighborhood},{' '}
+            {business.location.city}: un espacio tranquilo para desconectarte y dejarte cuidar. Los
+            procedimientos de armonización facial se realizan aquí, previa valoración.
+          </p>
+          <a class="btn btn--outline btn--sm" href={catalogUrl({ modo: 'estudio' })}>
+            Tratamientos en el estudio
+          </a>
+        </article>
+        <article class="mode">
+          <span class="mode__icon">
+            <UiIcon name="home" />
+          </span>
+          <h3>A domicilio</h3>
+          <p>
+            {business.homeServiceNote} Masajes, cuidado facial, tratamientos corporales y depilación
+            sin salir de casa.
+          </p>
+          <a class="btn btn--outline btn--sm" href={catalogUrl({ modo: 'domicilio' })}>
+            Tratamientos a domicilio
+          </a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="manifesto" aria-labelledby="manifesto-title">
+    <Petals />
+    <div class="container manifesto__inner">
+      <h2 id="manifesto-title" class="script manifesto__title">
+        No es solo una cita…
+      </h2>
+      <ul class="manifesto__values" role="list">
+        {values.map((value) => (
+          <li>{value}</li>
+        ))}
+      </ul>
+      <p>Porque cuidarte también es una forma de quererte 💜</p>
+    </div>
+  </section>
+
+  {testimonials.length > 0 && (
+    <section class="section" aria-labelledby="testimonios-title">
+      <div class="container">
+        <header class="section__header section__header--center">
+          <p class="eyebrow">Lo que dicen nuestras clientas</p>
+          <h2 id="testimonios-title" class="title">
+            Clientas <span class="script">felices</span>
+          </h2>
+        </header>
+        <ul class="testimonials" role="list">
+          {testimonials.map((item) => (
+            <li>
+              <figure class="testimonial">
+                <blockquote>
+                  <p>“{item.quote}”</p>
+                </blockquote>
+                <figcaption>{item.author}</figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="section" id="preguntas" aria-labelledby="preguntas-title">
+    <div class="container faq-layout">
+      <header class="section__header">
+        <p class="eyebrow">Resolvemos tus dudas</p>
+        <h2 id="preguntas-title" class="title">
+          Preguntas <span class="script">frecuentes</span>
+        </h2>
+      </header>
+      <div class="faq">
+        {faqs.map((faq) => (
+          <details class="faq__item">
+            <summary>{faq.question}</summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--soft" id="contacto" aria-labelledby="contacto-title">
+    <div class="container">
+      <header class="section__header section__header--center">
+        <p class="eyebrow">Contacto</p>
+        <h2 id="contacto-title" class="title">
+          Agenda <span class="script">tu cita</span>
+        </h2>
+        <p class="lead">{business.hoursNote}</p>
+      </header>
+      <ul class="contact-cards" role="list">
+        <li class="contact-card">
+          <UiIcon name="whatsapp" />
+          <h3>WhatsApp</h3>
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+            {business.whatsapp.display}
+          </a>
+        </li>
+        <li class="contact-card">
+          <UiIcon name="mail" />
+          <h3>Correo</h3>
+          <a href={`mailto:${business.email}`}>{business.email}</a>
+        </li>
+        <li class="contact-card">
+          <UiIcon name="instagram" />
+          <h3>Instagram</h3>
+          <a href={business.social.instagram} target="_blank" rel="noopener noreferrer">
+            {business.social.instagramHandle}
+          </a>
+        </li>
+        <li class="contact-card">
+          <UiIcon name="facebook" />
+          <h3>Facebook</h3>
+          <a href={business.social.facebook} target="_blank" rel="noopener noreferrer">
+            {business.name}
+          </a>
+        </li>
+        <li class="contact-card">
+          <UiIcon name="pin" />
+          <h3>Ubicación</h3>
+          <p>
+            {business.location.neighborhood}, {business.location.city}
+          </p>
+          <a href={business.location.mapsUrl} target="_blank" rel="noopener noreferrer">
+            Ver en Google Maps
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-12) var(--space-16);
+    background: var(--gradient-soft);
+  }
+
+  .hero__inner {
+    position: relative;
+    display: grid;
+    align-items: center;
+    gap: var(--space-10);
+  }
+
+  .hero__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+  }
+
+  .hero__title {
+    display: grid;
+    line-height: 1;
+  }
+
+  .hero__title-top {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .hero__title-script {
+    margin-top: -0.1em;
+    font-size: calc(var(--text-3xl) * 1.35);
+    line-height: 1.1;
+  }
+
+  .hero__tagline {
+    font-size: var(--text-sm);
+  }
+
+  .hero .lead {
+    max-width: 36rem;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
+    color: var(--color-plum-900);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .hero__badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .hero__badges :global(svg) {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--color-accent);
+  }
+
+  .hero__visual {
+    justify-self: center;
+    width: min(78%, 19rem);
+  }
+
+  @media (min-width: 64rem) {
+    .hero__visual {
+      width: min(100%, 26rem);
+    }
+  }
+
+  .hero__visual :global(.hero__image) {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border: 6px solid var(--color-white);
+    border-radius: 50%;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hero__art {
+    position: relative;
+    aspect-ratio: 1;
+  }
+
+  .hero__ring {
+    position: absolute;
+    inset: 8%;
+    display: grid;
+    place-items: center;
+    border: 6px solid var(--color-white);
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    box-shadow:
+      0 0 0 14px rgb(255 255 255 / 0.5),
+      var(--shadow-lg);
+    color: var(--color-primary);
+  }
+
+  .hero__ring :global(.hero__art-icon) {
+    width: 62%;
+    height: 62%;
+  }
+
+  .hero__orbit {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 22%;
+    aspect-ratio: 1;
+    border: 3px solid var(--color-white);
+    border-radius: 50%;
+    background: var(--color-lilac-100);
+    box-shadow: var(--shadow-md);
+    color: var(--color-primary);
+  }
+
+  .hero__orbit :global(svg) {
+    width: 64%;
+    height: 64%;
+  }
+
+  .hero__orbit--1 {
+    top: 2%;
+    right: 4%;
+  }
+
+  .hero__orbit--2 {
+    bottom: 4%;
+    right: 10%;
+  }
+
+  .hero__orbit--3 {
+    bottom: 16%;
+    left: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      padding-block: var(--space-20);
+    }
+
+    .hero__inner {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+
+  /* ---------- Highlights (Instagram-style circles) ---------- */
+  .highlights {
+    padding-block: var(--space-10);
+  }
+
+  .highlights__list {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding: var(--space-2) var(--space-1);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .highlights__list li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .highlight {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    width: 6.75rem;
+    color: var(--color-plum-900);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .highlight__circle {
+    display: grid;
+    place-items: center;
+    width: 5rem;
+    height: 5rem;
+    border: 3px solid var(--color-white);
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    box-shadow: 0 0 0 2px var(--color-orchid-400);
+    color: var(--color-primary);
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .highlight__circle :global(svg) {
+    width: 68%;
+    height: 68%;
+  }
+
+  .highlight:hover .highlight__circle {
+    transform: scale(1.06);
+  }
+
+  @media (min-width: 64rem) {
+    .highlights__list {
+      justify-content: center;
+    }
+  }
+
+  .center-action {
+    margin-top: var(--space-10);
+    text-align: center;
+  }
+
+  /* ---------- Steps ---------- */
+  .steps {
+    display: grid;
+    gap: var(--space-6);
+    counter-reset: step;
+  }
+
+  .step {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-8) var(--space-6);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    text-align: center;
+  }
+
+  .step__number {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--gradient-brand);
+    color: var(--color-white);
+    font-size: var(--text-xl);
+    font-weight: 800;
+  }
+
+  .step__title {
+    font-size: var(--text-lg);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .step p {
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 48rem) {
+    .steps {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* ---------- Modalities ---------- */
+  .modes {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .mode {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mode h3 {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .mode p {
+    color: var(--color-text-muted);
+  }
+
+  .mode__icon {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--color-lilac-200);
+    color: var(--color-primary);
+  }
+
+  .mode__icon :global(svg) {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  @media (min-width: 48rem) {
+    .modes {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /* ---------- Manifesto ---------- */
+  .manifesto {
+    position: relative;
+    overflow: hidden;
+    padding-block: var(--space-20);
+    background: var(--gradient-brand);
+    color: var(--color-white);
+    text-align: center;
+  }
+
+  .manifesto__inner {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-6);
+  }
+
+  .manifesto__title {
+    color: var(--color-white);
+    font-size: var(--text-script);
+  }
+
+  .manifesto__values {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .manifesto__values li {
+    padding: var(--space-2) var(--space-5);
+    border: 1px solid rgb(255 255 255 / 0.6);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .manifesto :global(.petal) {
+    fill: rgb(255 255 255 / 0.5);
+  }
+
+  /* ---------- Testimonials ---------- */
+  .testimonials {
+    display: grid;
+    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+
+  .testimonial {
+    display: grid;
+    gap: var(--space-3);
+    height: 100%;
+    padding: var(--space-8);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-soft);
+  }
+
+  .testimonial blockquote {
+    font-size: var(--text-lg);
+  }
+
+  .testimonial figcaption {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  /* ---------- FAQ ---------- */
+  .faq-layout {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .faq {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .faq__item {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+  }
+
+  .faq__item summary {
+    position: relative;
+    padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
+    color: var(--color-plum-900);
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__item summary::after {
+    content: '+';
+    position: absolute;
+    top: 50%;
+    right: var(--space-5);
+    color: var(--color-accent);
+    font-size: var(--text-xl);
+    line-height: 1;
+    transform: translateY(-50%);
+  }
+
+  .faq__item[open] summary::after {
+    content: '–';
+  }
+
+  .faq__item p {
+    padding: 0 var(--space-5) var(--space-5);
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 64rem) {
+    .faq-layout {
+      grid-template-columns: 0.8fr 1.2fr;
+      align-items: start;
+    }
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-cards {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  }
+
+  .contact-card {
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-6) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .contact-card :global(svg) {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-accent);
+  }
+
+  .contact-card h3 {
+    font-size: var(--text-sm);
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .contact-card p {
+    color: var(--color-text-muted);
+  }
+</style>

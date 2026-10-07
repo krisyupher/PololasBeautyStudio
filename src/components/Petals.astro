@@ -1,0 +1,96 @@
+---
+/** Decorative falling petals, echoing the petal backgrounds of the brand's posts. */
+const petals = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
+---
+
+<div class="petals" aria-hidden="true">
+  {petals.map((name) => (
+    <svg class={`petal ${name}`} viewBox="0 0 24 32">
+      <path d="M12 1c7 7.4 10 16 6.2 23.6-2.8 5.4-9.6 5.4-12.4 0C2 17 5 8.4 12 1z" />
+    </svg>
+  ))}
+</div>
+
+<style>
+  .petals {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .petal {
+    position: absolute;
+    width: 1.4rem;
+    fill: var(--color-lilac-200);
+    opacity: 0.75;
+  }
+
+  .p1 {
+    top: 8%;
+    left: 6%;
+    transform: rotate(-24deg);
+  }
+
+  .p2 {
+    top: 22%;
+    right: 10%;
+    width: 1rem;
+    fill: var(--color-orchid-400);
+    opacity: 0.35;
+    transform: rotate(38deg);
+  }
+
+  .p3 {
+    bottom: 14%;
+    left: 14%;
+    width: 1.8rem;
+    transform: rotate(62deg);
+  }
+
+  .p4 {
+    top: 58%;
+    right: 4%;
+    width: 2rem;
+    transform: rotate(-48deg);
+  }
+
+  .p5 {
+    top: 4%;
+    left: 52%;
+    width: 0.9rem;
+    fill: var(--color-orchid-400);
+    opacity: 0.3;
+    transform: rotate(12deg);
+  }
+
+  .p6 {
+    bottom: 6%;
+    right: 34%;
+    width: 1.1rem;
+    transform: rotate(-80deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .petal {
+      animation: drift 9s ease-in-out infinite alternate;
+    }
+
+    .p2,
+    .p5 {
+      animation-duration: 12s;
+    }
+
+    .p3,
+    .p6 {
+      animation-delay: -4s;
+    }
+  }
+
+  @keyframes drift {
+    to {
+      translate: 0.6rem 1.2rem;
+      rotate: 25deg;
+    }
+  }
+</style>
