@@ -2,7 +2,7 @@
 
 # ---------- Build: static Astro site ----------
 # Debian-based (glibc) image: matches the Linux binaries in package-lock.json (Rolldown, sharp).
-FROM node:24-slim AS build
+FROM node:25-slim AS build
 WORKDIR /app
 
 ENV ASTRO_TELEMETRY_DISABLED=1 \
