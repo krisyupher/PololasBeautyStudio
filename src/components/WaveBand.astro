@@ -35,16 +35,20 @@ const gradientId = uniqueId('wave-gradient');
         <stop class="wave-band__stop wave-band__stop--3" offset="1"></stop>
       </linearGradient>
     </defs>
-    <path class="wave-band__back" d="M-60 112C200 140 470 86 760 60 1010 38 1240 30 1500 2V140H-60Z"
+    <path
+      class="wave-band__back"
+      d="M-60 112C200 140 470 86 760 60 1010 38 1240 30 1500 2V140H-60Z"
     ></path>
     <path
       class="wave-band__front"
       fill={`url(#${gradientId})`}
-      d="M-60 140C260 141 560 116 860 90 1100 69 1300 50 1500 26V140H-60Z"></path>
+      d="M-60 140C260 141 560 116 860 90 1100 69 1300 50 1500 26V140H-60Z"
+    ></path>
     <path
       class="wave-band__shine"
       d="M-60 140C260 141 560 116 860 90 1100 69 1300 50 1500 26"
-      vector-effect="non-scaling-stroke"></path>
+      vector-effect="non-scaling-stroke"
+    ></path>
   </svg>
   <div class="wave-band__body">
     <div class="container wave-band__content">
@@ -62,7 +66,7 @@ const gradientId = uniqueId('wave-gradient');
 
   .wave-band__curve {
     width: 100%;
-    height: clamp(3.25rem, 1.6rem + 6vw, 8rem);
+    height: var(--wave-h);
     overflow: hidden;
   }
 
@@ -95,6 +99,8 @@ const gradientId = uniqueId('wave-gradient');
 
   /* Same gradient as the SVG band, so the seam is invisible. Overlaps it by 1px. */
   .wave-band__body {
+    /* Positioned so it paints above the (possibly mirrored, hence transformed) curve. */
+    position: relative;
     margin-top: -1px;
     background: var(--gradient-wave);
     background-color: var(--color-purple-900);
@@ -148,7 +154,7 @@ const gradientId = uniqueId('wave-gradient');
   /* The back layer drifts subtly. */
   @media (prefers-reduced-motion: no-preference) {
     .wave-band__back {
-      animation: wave-drift 16s ease-in-out infinite alternate;
+      animation: wave-drift 2.5s ease-in-out 2 alternate both;
     }
   }
 

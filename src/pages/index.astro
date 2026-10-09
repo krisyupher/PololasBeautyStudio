@@ -1,44 +1,71 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Heart from '../components/Heart.astro';
+import IconCircle from '../components/IconCircle.astro';
+import Kicker from '../components/Kicker.astro';
 import Petals from '../components/Petals.astro';
+import ScriptAccent from '../components/ScriptAccent.astro';
 import ServiceCard from '../components/ServiceCard.astro';
-import LineIcon from '../components/icons/LineIcon.astro';
+import TwoToneTitle from '../components/TwoToneTitle.astro';
+import ValueBadges from '../components/ValueBadges.astro';
+import WaveBand from '../components/WaveBand.astro';
 import UiIcon from '../components/icons/UiIcon.astro';
+import type { UiIconName } from '../components/icons/ui-icons';
 import { business } from '../data/business';
 import { faqs } from '../data/faq';
 import { testimonials } from '../data/testimonials';
 import { getCategories, getServices } from '../lib/catalog';
 import type { IconName } from '../lib/constants';
-import { getHeroImage } from '../lib/images';
+import { getCategoryImage, getHeroImage, getHighlightImage, getThanksImage } from '../lib/images';
 import { catalogUrl, serviceUrl } from '../lib/paths';
 import { businessJsonLd } from '../lib/schema';
 import { buildInquiryMessage, buildWhatsAppUrl } from '../lib/whatsapp';
 
 const [categories, services] = await Promise.all([getCategories(), getServices()]);
-const categoryName = new Map(categories.map((category) => [category.id, category.name]));
 const serviceIds = new Set(services.map((service) => service.id));
-const featured = services.filter((service) => service.featured);
 const heroImage = getHeroImage();
+const thanksImage = getThanksImage();
 const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
 
-// Mirrors the Instagram highlights (Botox, Labios, Rino, Bioestimulador) plus the other categories.
-const highlights: { label: string; icon: IconName; href: string }[] = [
+// The owner's Instagram highlight covers (only when the treatment exists), then one circle per
+// home section. A missing cover falls back to its line icon.
+const highlights = [
   ...[
-    { id: 'botox', label: 'Botox', icon: 'face' as const },
-    { id: 'labios', label: 'Labios', icon: 'lips' as const },
-    { id: 'rinomodelacion', label: 'Rino', icon: 'nose' as const },
-    { id: 'bioestimuladores', label: 'Bioestimulador', icon: 'profile' as const },
+    { cover: 'toxina', label: 'Toxina', service: 'toxina-botulinica', icon: 'face' },
+    { cover: 'labios', label: 'Labios', service: 'acido-hialuronico', icon: 'lips' },
+    { cover: 'rino', label: 'Rino', service: 'acido-hialuronico', icon: 'nose' },
+    { cover: 'bio', label: 'Bioestimuladores', service: 'bioestimuladores', icon: 'profile' },
   ]
-    .filter((item) => serviceIds.has(item.id))
-    .map((item) => ({ label: item.label, icon: item.icon, href: serviceUrl(item.id) })),
-  ...categories
-    .filter((category) => category.id !== 'armonizacion-facial')
-    .map((category) => ({
-      label: category.shortName,
-      icon: category.icon,
-      href: catalogUrl({ cat: category.id }),
+    .filter((item) => serviceIds.has(item.service))
+    .map((item) => ({
+      label: item.label,
+      href: serviceUrl(item.service),
+      image: getHighlightImage(item.cover),
+      icon: item.icon as IconName,
     })),
+  ...categories.map((category) => ({
+    label: category.shortName,
+    href: `#${category.id}`,
+    image: undefined,
+    icon: category.icon,
+  })),
+];
+
+// One showcase per category, mirroring the catalog pages; the photo side alternates.
+const showcases = categories
+  .map((category, index) => ({
+    category,
+    services: services.filter((service) => service.category === category.id),
+    image: getCategoryImage(category.id),
+    photoSide: index % 2 === 0 ? 'end' : 'start',
+  }))
+  .filter((showcase) => showcase.services.length > 0);
+
+const pillars: { line?: IconName; ui?: UiIconName; title: string; text: string }[] = [
+  { line: 'lotus', title: 'Belleza', text: 'que te inspira' },
+  { ui: 'heart', title: 'Bienestar', text: 'que te equilibra' },
+  { ui: 'sparkles', title: 'Confianza', text: 'que te acompaña' },
 ];
 
 const steps = [
@@ -56,7 +83,17 @@ const steps = [
   },
 ];
 
-const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienestar'];
+// Treatments offered at home, computed from the data and joined as a Spanish list
+// ("A, B y C"; Intl also handles "e" before words starting with "i").
+const homeServices = services.filter((service) => service.modalities.includes('domicilio'));
+let nextHomeService = 0;
+const homeServiceParts = new Intl.ListFormat('es', { type: 'conjunction' })
+  .formatToParts(homeServices.map((service) => service.name))
+  .map((part) => {
+    if (part.type !== 'element') return { text: part.value };
+    const service = homeServices[nextHomeService++];
+    return { text: part.value, href: service ? serviceUrl(service.id) : undefined };
+  });
 ---
 
 <BaseLayout
@@ -64,22 +101,43 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
   description={`${business.description} ${business.slogan}`}
   jsonLd={[businessJsonLd(categories, services)]}
 >
-  <section class="hero">
-    <Petals />
+  <!-- Hero: the catalog cover -->
+  <section class="hero petal-host" aria-labelledby="hero-title">
+    <Petals position="bottom-left" size="lg" />
+    <Petals position="top-right" size="sm" class="hero__petals-top" />
+    {heroImage && (
+      <div class="hero__media">
+        <Image src={heroImage} alt="" loading="eager" fetchpriority="high" class="hero__photo" />
+      </div>
+    )}
     <div class="container hero__inner">
       <div class="hero__copy">
-        <p class="eyebrow">
-          Spa y estética · {business.location.neighborhood}, {business.location.city}
-        </p>
-        <h1 class="hero__title">
-          <span class="hero__title-top">Descubre tu</span>
-          <span class="script hero__title-script">mejor versión</span>
-        </h1>
-        <p class="pill pill--strong hero__tagline">{business.tagline}</p>
-        <p class="lead">
-          Armonización facial, cuidado de la piel, masajes y tratamientos corporales con resultados
-          naturales. Arma tu pedido y confírmalo por WhatsApp: en nuestro estudio o en la comodidad
-          de tu casa.
+        <TwoToneTitle
+          class="hero__title"
+          as="h1"
+          id="hero-title"
+          size="xl"
+          lines={['Tu bienestar', 'en buenas manos']}
+          animate="load"
+        />
+        <ScriptAccent
+          text="Más que servicios, experiencias para ti"
+          size="lg"
+          animate="load"
+          class="hero__script"
+        />
+        <ul class="pillars" role="list">
+          {pillars.map((pillar) => (
+            <li class="pillar">
+              <IconCircle line={pillar.line} ui={pillar.ui} size="md" />
+              <span class="pillar__title">{pillar.title}</span>{' '}
+              <span class="pillar__text">{pillar.text}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="hero__lead">
+          Estética facial, bienestar y estética corporal en Modelia, Bogotá. Arma tu pedido y
+          confírmalo por WhatsApp: en el estudio o, en algunos servicios, a domicilio.
         </p>
         <div class="hero__actions">
           <a class="btn btn--primary" href={catalogUrl()}>
@@ -91,50 +149,15 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
             Escríbenos
           </a>
         </div>
-        <ul class="hero__badges" role="list">
-          <li>
-            <UiIcon name="home" /> En el estudio o a domicilio
-          </li>
-          <li>
-            <UiIcon name="check" /> Valoración personalizada
-          </li>
-          <li>
-            <UiIcon name="check" /> Resultados naturales
-          </li>
-        </ul>
-      </div>
-
-      <div class="hero__visual">
-        {heroImage ? (
-          <Image
-            src={heroImage}
-            alt={`Tratamiento en ${business.name}`}
-            widths={[480, 800, 1100]}
-            sizes="(min-width: 64rem) 32rem, 90vw"
-            loading="eager"
-            class="hero__image"
-          />
-        ) : (
-          <div class="hero__art" aria-hidden="true">
-            <span class="hero__ring">
-              <LineIcon name="profile" class="hero__art-icon" strokeWidth={1.2} />
-            </span>
-            <span class="hero__orbit hero__orbit--1">
-              <LineIcon name="lips" />
-            </span>
-            <span class="hero__orbit hero__orbit--2">
-              <LineIcon name="lotus" />
-            </span>
-            <span class="hero__orbit hero__orbit--3">
-              <LineIcon name="sparkle" />
-            </span>
-          </div>
-        )}
+        <p class="spaced hero__tagline">Cuida de ti, relájate y realza tu belleza natural</p>
+        <span class="rule hero__rule" aria-hidden="true"></span>
       </div>
     </div>
+    <WaveBand text="Belleza · Bienestar · Confianza · En un solo lugar" class="hero__wave" />
   </section>
 
-  <section class="section highlights" aria-labelledby="explora-title">
+  <!-- Highlights: Instagram-style circles -->
+  <section class="highlights" aria-labelledby="explora-title">
     <div class="container">
       <h2 id="explora-title" class="visually-hidden">
         Explora por tratamiento
@@ -143,8 +166,20 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
         {highlights.map((item) => (
           <li>
             <a class="highlight" href={item.href}>
-              <span class="highlight__circle">
-                <LineIcon name={item.icon} />
+              <span class="highlight__ring">
+                <span class="highlight__circle">
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt=""
+                      width={96}
+                      densities={[1, 2]}
+                      class="highlight__image"
+                    />
+                  ) : (
+                    <IconCircle line={item.icon} size="xl" class="highlight__icon" />
+                  )}
+                </span>
               </span>
               <span class="highlight__label">{item.label}</span>
             </a>
@@ -154,47 +189,16 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     </div>
   </section>
 
-  <section class="section section--soft" aria-labelledby="destacados-title">
-    <div class="container">
-      <header class="section__header">
-        <p class="eyebrow">Favoritos de nuestras clientas</p>
-        <h2 id="destacados-title" class="title">
-          Tratamientos <span class="script">destacados</span>
-        </h2>
-        <p class="lead">
-          Pequeños retoques, grandes cambios en cómo te miras al espejo. Siempre con naturalidad.
-        </p>
-      </header>
-      <ul class="card-grid" role="list">
-        {featured.map((service) => (
-          <li>
-            <ServiceCard
-              service={service}
-              categoryName={categoryName.get(service.category) ?? ''}
-            />
-          </li>
-        ))}
-      </ul>
-      <p class="center-action">
-        <a class="btn btn--outline" href={catalogUrl()}>
-          Ver los {services.length} tratamientos
-          <UiIcon name="arrow-right" />
-        </a>
-      </p>
-    </div>
-  </section>
-
+  <!-- How to order -->
   <section class="section" id="como-pedir" aria-labelledby="como-pedir-title">
     <div class="container">
       <header class="section__header section__header--center">
         <p class="eyebrow">Fácil y sin compromiso</p>
-        <h2 id="como-pedir-title" class="title">
-          Cómo <span class="script">pedir</span>
-        </h2>
+        <TwoToneTitle id="como-pedir-title" lines={['Cómo', 'pedir']} size="lg" align="center" />
       </header>
       <ol class="steps" role="list">
         {steps.map((step, index) => (
-          <li class="step">
+          <li class="step reveal">
             <span class="step__number" aria-hidden="true">
               {index + 1}
             </span>
@@ -206,41 +210,109 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
           </li>
         ))}
       </ol>
+      <div class="steps__actions">
+        <a class="btn btn--primary" href={catalogUrl()}>
+          Ver catálogo
+          <UiIcon name="arrow-right" />
+        </a>
+        <a class="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+          <UiIcon name="whatsapp" />
+          Escríbenos
+        </a>
+      </div>
     </div>
   </section>
 
-  <section class="section section--soft" id="modalidades" aria-labelledby="modalidades-title">
+  <!-- One showcase per category: the catalog's pages 2 to 4 -->
+  {showcases.map(({ category, services: items, image, photoSide }) => (
+    <section
+      id={category.id}
+      class:list={['showcase', 'petal-host', `showcase--photo-${photoSide}`]}
+      aria-labelledby={`${category.id}-title`}
+    >
+      <Petals position={photoSide === 'end' ? 'top-right' : 'top-left'} size="md" />
+      <Petals position={photoSide === 'end' ? 'bottom-left' : 'bottom-right'} size="md" />
+      <div class="container showcase__grid">
+        <header class="showcase__head">
+          <Kicker decorative class="showcase__kicker" />
+          <TwoToneTitle id={`${category.id}-title`} lines={category.titleLines} size="lg" />
+          <p class="showcase__subtitle">{category.description}</p>
+        </header>
+
+        <div class="showcase__media">
+          <div class="showcase__sticky">
+            {image && (
+              <div class="showcase__photo-frame">
+                <Image src={image} alt="" loading="lazy" class="showcase__photo" />
+              </div>
+            )}
+            <ScriptAccent text={category.script} class="showcase__script" />
+            <p class="spaced showcase__note">{category.note}</p>
+            <span class="rule showcase__rule" aria-hidden="true" />
+          </div>
+        </div>
+
+        <ul class="showcase__list" role="list">
+          {items.map((service) => (
+            <li>
+              <ServiceCard service={service} />
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="container">
+        <ValueBadges values={category.values} class="showcase__values" />
+      </div>
+      <WaveBand
+        text={category.closing}
+        align={photoSide === 'end' ? 'start' : 'end'}
+        flip={photoSide === 'end'}
+      />
+    </section>
+  ))}
+
+  <!-- Studio or home -->
+  <section
+    class="section section--soft petal-host"
+    id="modalidades"
+    aria-labelledby="modalidades-title"
+  >
+    <Petals position="bottom-right" size="md" />
     <div class="container">
       <header class="section__header section__header--center">
         <p class="eyebrow">Tú eliges dónde</p>
-        <h2 id="modalidades-title" class="title">
-          En el estudio <span class="script">o en tu casa</span>
-        </h2>
+        <TwoToneTitle
+          id="modalidades-title"
+          lines={['En el estudio', 'o en tu casa']}
+          size="lg"
+          align="center"
+        />
       </header>
       <div class="modes">
-        <article class="mode">
-          <span class="mode__icon">
-            <UiIcon name="studio" />
-          </span>
+        <article class="mode glass reveal">
+          <IconCircle ui="studio" size="lg" />
           <h3>En el estudio</h3>
           <p>
             Te esperamos en nuestro estudio en {business.location.neighborhood},{' '}
-            {business.location.city}: un espacio tranquilo para desconectarte y dejarte cuidar. Los
-            procedimientos de armonización facial se realizan aquí, previa valoración.
+            {business.location.city}: un espacio tranquilo para desconectarte y dejarte cuidar.
           </p>
           <a class="btn btn--outline btn--sm" href={catalogUrl({ modo: 'estudio' })}>
             Tratamientos en el estudio
           </a>
         </article>
-        <article class="mode">
-          <span class="mode__icon">
-            <UiIcon name="home" />
-          </span>
+        <article class="mode glass reveal">
+          <IconCircle ui="home" size="lg" />
           <h3>A domicilio</h3>
-          <p>
-            {business.homeServiceNote} Masajes, cuidado facial, tratamientos corporales y depilación
-            sin salir de casa.
-          </p>
+          <p>{business.homeServiceNote}</p>
+          {homeServiceParts.length > 0 && (
+            <p class="mode__services">
+              Disponibles a domicilio:{' '}
+              {homeServiceParts.map((part) =>
+                part.href ? <a href={part.href}>{part.text}</a> : part.text,
+              )}
+              .
+            </p>
+          )}
           <a class="btn btn--outline btn--sm" href={catalogUrl({ modo: 'domicilio' })}>
             Tratamientos a domicilio
           </a>
@@ -249,34 +321,22 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     </div>
   </section>
 
-  <section class="manifesto" aria-labelledby="manifesto-title">
-    <Petals />
-    <div class="container manifesto__inner">
-      <h2 id="manifesto-title" class="script manifesto__title">
-        No es solo una cita…
-      </h2>
-      <ul class="manifesto__values" role="list">
-        {values.map((value) => (
-          <li>{value}</li>
-        ))}
-      </ul>
-      <p>Porque cuidarte también es una forma de quererte 💜</p>
-    </div>
-  </section>
-
   {testimonials.length > 0 && (
     <section class="section" aria-labelledby="testimonios-title">
       <div class="container">
         <header class="section__header section__header--center">
           <p class="eyebrow">Lo que dicen nuestras clientas</p>
-          <h2 id="testimonios-title" class="title">
-            Clientas <span class="script">felices</span>
-          </h2>
+          <TwoToneTitle
+            id="testimonios-title"
+            lines={['Clientas', 'felices']}
+            size="lg"
+            align="center"
+          />
         </header>
         <ul class="testimonials" role="list">
           {testimonials.map((item) => (
             <li>
-              <figure class="testimonial">
+              <figure class="testimonial glass">
                 <blockquote>
                   <p>“{item.quote}”</p>
                 </blockquote>
@@ -289,13 +349,19 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     </section>
   )}
 
+  <!-- FAQ -->
   <section class="section" id="preguntas" aria-labelledby="preguntas-title">
     <div class="container faq-layout">
-      <header class="section__header">
+      <header class="faq-layout__head">
         <p class="eyebrow">Resolvemos tus dudas</p>
-        <h2 id="preguntas-title" class="title">
-          Preguntas <span class="script">frecuentes</span>
-        </h2>
+        <TwoToneTitle id="preguntas-title" lines={['Preguntas', 'frecuentes']} size="lg" />
+        <p class="faq-layout__lead">
+          ¿No encuentras tu respuesta?{' '}
+          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+            Escríbenos por WhatsApp
+          </a>
+          .
+        </p>
       </header>
       <div class="faq">
         {faqs.map((faq) => (
@@ -308,53 +374,104 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     </div>
   </section>
 
-  <section class="section section--soft" id="contacto" aria-labelledby="contacto-title">
-    <div class="container">
-      <header class="section__header section__header--center">
-        <p class="eyebrow">Contacto</p>
-        <h2 id="contacto-title" class="title">
-          Agenda <span class="script">tu cita</span>
-        </h2>
-        <p class="lead">{business.hoursNote}</p>
-      </header>
-      <ul class="contact-cards" role="list">
-        <li class="contact-card">
-          <UiIcon name="whatsapp" />
-          <h3>WhatsApp</h3>
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            {business.whatsapp.display}
+  <!-- "Gracias" and contact: the catalog's closing page -->
+  <section class="thanks petal-host" id="contacto" aria-labelledby="contacto-title">
+    <Petals position="top-left" size="md" />
+    <Petals position="bottom-left" size="lg" />
+    {thanksImage && (
+      <div class="thanks__media">
+        <Image src={thanksImage} alt="" loading="lazy" class="thanks__photo" />
+      </div>
+    )}
+    <div class="container thanks__inner">
+      <div class="thanks__copy">
+        <Kicker decorative />
+        <TwoToneTitle
+          id="contacto-title"
+          lines={['Por ser parte', 'de esta historia']}
+          size="md"
+          class="thanks__title"
+        >
+          <span slot="before" class="thanks__script">
+            Gracias
+            <Heart class="thanks__heart" />
+          </span>
+        </TwoToneTitle>
+        <p class="thanks__text">
+          En Pololas creemos que el cuidado personal es una forma de amor propio, y nos inspira
+          acompañarte en cada paso hacia tu mejor versión.
+        </p>
+        <span class="rule" aria-hidden="true"></span>
+      </div>
+
+      <ul class="contact-panel glass" role="list">
+        <li>
+          <a
+            class="contact-panel__item"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconCircle ui="whatsapp" size="md" />
+            <span class="contact-panel__label">Agenda tu cita</span>
+            <span class="contact-panel__value">{business.whatsapp.display}</span>
+            <span class="visually-hidden"> (WhatsApp)</span>
           </a>
         </li>
-        <li class="contact-card">
-          <UiIcon name="mail" />
-          <h3>Correo</h3>
-          <a href={`mailto:${business.email}`}>{business.email}</a>
-        </li>
-        <li class="contact-card">
-          <UiIcon name="instagram" />
-          <h3>Instagram</h3>
-          <a href={business.social.instagram} target="_blank" rel="noopener noreferrer">
-            {business.social.instagramHandle}
+        <li>
+          <a
+            class="contact-panel__item"
+            href={business.social.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconCircle ui="instagram" size="md" />
+            <span class="contact-panel__label">Síguenos</span>
+            <span class="contact-panel__value">{business.name}</span>
+            <span class="visually-hidden"> (Instagram)</span>
           </a>
         </li>
-        <li class="contact-card">
-          <UiIcon name="facebook" />
-          <h3>Facebook</h3>
-          <a href={business.social.facebook} target="_blank" rel="noopener noreferrer">
-            {business.name}
-          </a>
-        </li>
-        <li class="contact-card">
-          <UiIcon name="pin" />
-          <h3>Ubicación</h3>
-          <p>
-            {business.location.neighborhood}, {business.location.city}
-          </p>
-          <a href={business.location.mapsUrl} target="_blank" rel="noopener noreferrer">
-            Ver en Google Maps
+        <li>
+          <a
+            class="contact-panel__item"
+            href={business.location.mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <IconCircle ui="pin" size="md" />
+            <span class="contact-panel__label">Visítanos</span>
+            <span class="contact-panel__value">
+              {business.location.neighborhood}, {business.location.city}
+            </span>
+            <span class="visually-hidden"> (Google Maps)</span>
           </a>
         </li>
       </ul>
+
+      <div class="thanks__more">
+        <ul class="thanks__links" role="list">
+          <li>
+            <a href={business.social.facebook} target="_blank" rel="noopener noreferrer">
+              <UiIcon name="facebook" />
+              Facebook
+            </a>
+          </li>
+          <li>
+            <a href={`mailto:${business.email}`}>
+              <UiIcon name="mail" />
+              {business.email}
+            </a>
+          </li>
+        </ul>
+        <p class="thanks__hours">
+          <UiIcon name="clock" />
+          {business.hoursNote}
+        </p>
+        <p class="thanks__disclaimer">
+          Los procedimientos de estética facial los realiza un profesional de la salud, previa
+          valoración. Los resultados varían según cada persona.
+        </p>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -362,49 +479,84 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
 <style>
   /* ---------- Hero ---------- */
   .hero {
+    background: var(--color-bg);
+  }
+
+  .hero__media {
     position: relative;
+    height: clamp(13.5rem, 58vw, 22rem);
     overflow: hidden;
-    padding-block: var(--space-12) var(--space-16);
-    background: var(--gradient-soft);
+  }
+
+  .hero__media :global(.hero__photo) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
   }
 
   .hero__inner {
     position: relative;
-    display: grid;
-    align-items: center;
-    gap: var(--space-10);
   }
 
   .hero__copy {
     display: grid;
     justify-items: start;
     gap: var(--space-5);
+    padding-block: var(--space-2) var(--space-10);
   }
 
-  .hero__title {
+  .hero :global(.hero__script) {
+    margin-top: calc(-1 * var(--space-2));
+  }
+
+  .pillars {
     display: grid;
-    line-height: 1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    max-width: 32rem;
   }
 
-  .hero__title-top {
-    font-size: var(--text-3xl);
-    font-weight: 800;
-    letter-spacing: 0.01em;
+  .pillar {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: var(--space-1);
+    padding-inline: var(--space-2);
+    color: var(--color-heading);
+    font-size: var(--text-2xs);
+    line-height: 1.3;
+    text-align: center;
     text-transform: uppercase;
   }
 
-  .hero__title-script {
-    margin-top: -0.1em;
-    font-size: calc(var(--text-3xl) * 1.35);
-    line-height: 1.1;
+  .pillar + .pillar::before {
+    content: '';
+    position: absolute;
+    inset: 4% auto 4% 0;
+    width: 1px;
+    background: linear-gradient(transparent, var(--color-rule) 15% 85%, transparent);
   }
 
-  .hero__tagline {
-    font-size: var(--text-sm);
+  .pillar :global(.icon-circle) {
+    margin-bottom: var(--space-2);
   }
 
-  .hero .lead {
-    max-width: 36rem;
+  .pillar__title {
+    font-size: var(--text-xs);
+    font-weight: 800;
+  }
+
+  .pillar__text {
+    font-weight: 500;
+  }
+
+  .hero__lead {
+    max-width: 34rem;
+    color: var(--color-text);
+    font-size: var(--text-lg);
   }
 
   .hero__actions {
@@ -413,122 +565,131 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     gap: var(--space-3);
   }
 
-  .hero__badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-5);
-    color: var(--color-plum-900);
-    font-size: var(--text-sm);
-    font-weight: 600;
+  .hero__tagline {
+    max-width: 24em;
+    margin-top: var(--space-2);
   }
 
-  .hero__badges li {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
+  .hero__rule {
+    margin-top: calc(-1 * var(--space-2));
   }
 
-  .hero__badges :global(svg) {
-    width: 1.1rem;
-    height: 1.1rem;
-    color: var(--color-accent);
+  .hero :global(.hero__petals-top) {
+    display: none;
   }
 
-  .hero__visual {
-    justify-self: center;
-    width: min(78%, 19rem);
-  }
+  /* Phones and tablets: a shorter banner, and the lead and buttons right after the script line,
+     so "Ver catálogo" is above the fold; the pillars and tagline follow. Desktop keeps the
+     catalog cover order. None of the reordered items is focusable, so focus order is unchanged. */
+  @media (max-width: 63.99rem) {
+    .hero__media {
+      height: clamp(11rem, 44vw, 22rem);
+    }
 
-  @media (min-width: 64rem) {
-    .hero__visual {
-      width: min(100%, 26rem);
+    .hero__media :global(.hero__photo) {
+      object-position: 50% 22%;
+    }
+
+    .hero__lead {
+      font-size: var(--text-base);
+    }
+
+    .pillars {
+      order: 1;
+      margin-top: var(--space-3);
+    }
+
+    .hero__tagline {
+      order: 2;
+    }
+
+    .hero__rule {
+      order: 3;
     }
   }
 
-  .hero__visual :global(.hero__image) {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border: 6px solid var(--color-white);
-    border-radius: 50%;
-    box-shadow: var(--shadow-lg);
+  @media (min-width: 64rem) {
+    .hero__media {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: min(44vw, 38rem);
+      height: auto;
+    }
+
+    .hero__media :global(.hero__photo) {
+      object-position: 50% 12%;
+      mask-image:
+        linear-gradient(to right, transparent 0, #000 38%),
+        linear-gradient(to bottom, #000 72%, transparent 94%);
+      mask-composite: intersect;
+    }
+
+    .hero__copy {
+      max-width: min(38rem, 56%);
+      padding-block: var(--space-12) var(--space-12);
+    }
+
+    .hero :global(.hero__petals-top) {
+      display: block;
+    }
   }
 
-  .hero__art {
+  /* The wave overlaps the bottom of the photo, as on the cover. */
+  .hero :global(.hero__wave) {
     position: relative;
-    aspect-ratio: 1;
   }
 
-  .hero__ring {
-    position: absolute;
-    inset: 8%;
-    display: grid;
-    place-items: center;
-    border: 6px solid var(--color-white);
-    border-radius: 50%;
-    background: var(--color-lilac-200);
-    box-shadow:
-      0 0 0 14px rgb(255 255 255 / 0.5),
-      var(--shadow-lg);
-    color: var(--color-primary);
-  }
-
-  .hero__ring :global(.hero__art-icon) {
-    width: 62%;
-    height: 62%;
-  }
-
-  .hero__orbit {
-    position: absolute;
-    display: grid;
-    place-items: center;
-    width: 22%;
-    aspect-ratio: 1;
-    border: 3px solid var(--color-white);
-    border-radius: 50%;
-    background: var(--color-lilac-100);
-    box-shadow: var(--shadow-md);
-    color: var(--color-primary);
-  }
-
-  .hero__orbit :global(svg) {
-    width: 64%;
-    height: 64%;
-  }
-
-  .hero__orbit--1 {
-    top: 2%;
-    right: 4%;
-  }
-
-  .hero__orbit--2 {
-    bottom: 4%;
-    right: 10%;
-  }
-
-  .hero__orbit--3 {
-    bottom: 16%;
-    left: 0;
-  }
-
-  @media (min-width: 64rem) {
-    .hero {
-      padding-block: var(--space-20);
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__media :global(.hero__photo) {
+      animation: settle 1.4s var(--ease-out) both;
     }
 
-    .hero__inner {
-      grid-template-columns: 1.1fr 0.9fr;
+    .pillar,
+    .hero__lead,
+    .hero__actions > *,
+    .hero__tagline,
+    .hero__rule {
+      animation: fade-up var(--duration-reveal) var(--ease-out) both;
+    }
+
+    .pillar:nth-child(1) {
+      animation-delay: 0.6s;
+    }
+
+    .pillar:nth-child(2) {
+      animation-delay: 0.72s;
+    }
+
+    .pillar:nth-child(3) {
+      animation-delay: 0.84s;
+    }
+
+    .hero__lead {
+      animation-delay: 0.9s;
+    }
+
+    .hero__actions > :nth-child(1) {
+      animation-delay: 1s;
+    }
+
+    .hero__actions > :nth-child(2) {
+      animation-delay: 1.12s;
+    }
+
+    .hero__tagline,
+    .hero__rule {
+      animation-delay: 1.25s;
     }
   }
 
   /* ---------- Highlights (Instagram-style circles) ---------- */
   .highlights {
-    padding-block: var(--space-10);
+    padding-block: var(--space-8) var(--space-6);
   }
 
   .highlights__list {
     display: flex;
-    gap: var(--space-4);
+    gap: var(--space-3);
     overflow-x: auto;
     padding: var(--space-2) var(--space-1);
     scroll-snap-type: x mandatory;
@@ -544,34 +705,80 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     display: grid;
     justify-items: center;
     gap: var(--space-2);
-    width: 6.75rem;
-    color: var(--color-plum-900);
+    width: 6.5rem;
+    color: var(--color-heading);
     font-size: var(--text-xs);
     font-weight: 600;
     text-align: center;
     text-decoration: none;
   }
 
-  .highlight__circle {
+  .highlight:hover {
+    color: var(--color-accent);
+  }
+
+  /* Thin gradient ring; a brighter copy fades in on hover. */
+  .highlight__ring {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 5rem;
-    height: 5rem;
-    border: 3px solid var(--color-white);
+    width: 5.5rem;
+    height: 5.5rem;
     border-radius: 50%;
-    background: var(--color-lilac-200);
-    box-shadow: 0 0 0 2px var(--color-orchid-400);
-    color: var(--color-primary);
-    transition: transform 0.25s var(--ease-out);
+    background: var(--gradient-brand);
+    transition: transform 0.35s var(--ease-out);
   }
 
-  .highlight__circle :global(svg) {
-    width: 68%;
-    height: 68%;
+  .highlight__ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--color-accent-bright),
+      var(--color-heart),
+      var(--color-wave-pink)
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
   }
 
-  .highlight:hover .highlight__circle {
-    transform: scale(1.06);
+  .highlight__circle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    overflow: hidden;
+    border: 2px solid var(--color-white);
+    border-radius: 50%;
+    background: var(--color-white);
+  }
+
+  .highlight__circle :global(.highlight__image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .highlight__circle :global(.highlight__icon) {
+    width: 100%;
+    height: 100%;
+    background: #f6c7f3;
+    box-shadow: none;
+  }
+
+  .highlight:hover .highlight__ring::before,
+  .highlight:focus-visible .highlight__ring::before {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .highlight:hover .highlight__ring,
+    .highlight:focus-visible .highlight__ring {
+      transform: scale(1.07);
+    }
   }
 
   @media (min-width: 64rem) {
@@ -580,40 +787,192 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     }
   }
 
-  .center-action {
-    margin-top: var(--space-10);
-    text-align: center;
+  /* ---------- Category showcases ---------- */
+  .showcase {
+    padding-top: var(--space-section);
+    background: var(--gradient-soft);
+  }
+
+  .showcase__grid {
+    display: grid;
+    grid-template-areas:
+      'head'
+      'media'
+      'list';
+    gap: var(--space-8);
+  }
+
+  .showcase__head {
+    grid-area: head;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  /* Decorative and repeated on every section: only shown where the PDF layout has room. */
+  @media (max-width: 63.99rem) {
+    .showcase :global(.showcase__kicker) {
+      display: none;
+    }
+  }
+
+  .showcase__subtitle {
+    color: var(--color-heading);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .showcase__media {
+    grid-area: media;
+  }
+
+  .showcase__sticky {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+  }
+
+  .showcase__photo-frame {
+    width: calc(100% + 2 * var(--gutter));
+    height: clamp(15rem, 70vw, 24rem);
+    margin-inline: calc(-1 * var(--gutter));
+    overflow: hidden;
+  }
+
+  .showcase__photo-frame :global(.showcase__photo) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 25%;
+    mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  }
+
+  .showcase :global(.showcase__script) {
+    margin-top: calc(-1 * var(--space-10));
+  }
+
+  .showcase__note {
+    max-width: 22em;
+  }
+
+  .showcase__list {
+    grid-area: list;
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  /* Outside the grid on purpose: the sticky photo column stops at the end of the list. */
+  .showcase :global(.showcase__values) {
+    padding-block: var(--space-12);
+  }
+
+  @media (min-width: 64rem) {
+    .showcase__grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      grid-template-areas:
+        'head media'
+        'list media';
+      column-gap: var(--space-12);
+    }
+
+    .showcase--photo-start .showcase__grid {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      grid-template-areas:
+        'media head'
+        'media list';
+    }
+
+    /* With the photo on the left, the heading block sits flush right, as on the catalog page. */
+    .showcase--photo-start .showcase__head {
+      justify-items: end;
+      text-align: end;
+    }
+
+    .showcase--photo-start :global(.kicker) {
+      justify-items: end;
+      text-align: end;
+    }
+
+    .showcase--photo-start :global(.kicker__line) {
+      margin-right: -0.34em;
+    }
+
+    /* The photo, script and note stay in view while the treatments scroll past. */
+    .showcase__media {
+      align-self: start;
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-6));
+    }
+
+    .showcase__sticky {
+      justify-items: center;
+      text-align: center;
+    }
+
+    /* Short enough that the script line and note fit on 768px-tall laptops. */
+    .showcase__photo-frame {
+      width: 100%;
+      height: auto;
+      max-height: min(34rem, 52vh);
+      margin-inline: 0;
+    }
+
+    .showcase__photo-frame :global(.showcase__photo) {
+      height: auto;
+      max-height: min(34rem, 52vh);
+      mask-image:
+        linear-gradient(to right, transparent 0, #000 22% 78%, transparent 100%),
+        linear-gradient(to bottom, #000 62%, transparent 96%);
+      mask-composite: intersect;
+    }
+
+    .showcase--photo-end .showcase__photo-frame :global(.showcase__photo) {
+      mask-image:
+        linear-gradient(to right, transparent 0, #000 28%),
+        linear-gradient(to bottom, #000 62%, transparent 96%);
+    }
+
+    .showcase--photo-start .showcase__photo-frame :global(.showcase__photo) {
+      mask-image:
+        linear-gradient(to left, transparent 0, #000 28%),
+        linear-gradient(to bottom, #000 62%, transparent 96%);
+    }
+
+    .showcase__note {
+      text-align: center;
+    }
   }
 
   /* ---------- Steps ---------- */
   .steps {
     display: grid;
-    gap: var(--space-6);
-    counter-reset: step;
+    gap: var(--space-8);
   }
 
   .step {
+    position: relative;
     display: grid;
     align-content: start;
     justify-items: center;
     gap: var(--space-3);
-    padding: var(--space-8) var(--space-6);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-white);
+    padding-inline: var(--space-6);
     text-align: center;
   }
 
   .step__number {
     display: grid;
     place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3.75rem;
+    height: 3.75rem;
+    border: 3px solid var(--color-white);
     border-radius: 50%;
     background: var(--gradient-brand);
+    background-color: var(--color-purple-900);
     color: var(--color-white);
     font-size: var(--text-xl);
     font-weight: 800;
+    box-shadow: var(--shadow-pink);
   }
 
   .step__title {
@@ -623,13 +982,31 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
   }
 
   .step p {
-    color: var(--color-text-muted);
+    max-width: 22rem;
+    color: var(--color-text);
   }
 
   @media (min-width: 48rem) {
     .steps {
       grid-template-columns: repeat(3, 1fr);
+      gap: 0;
     }
+
+    .step + .step::before {
+      content: '';
+      position: absolute;
+      inset: 6% auto 6% 0;
+      width: 1px;
+      background: linear-gradient(transparent, var(--color-rule) 15% 85%, transparent);
+    }
+  }
+
+  .steps__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-top: var(--space-10);
   }
 
   /* ---------- Modalities ---------- */
@@ -641,11 +1018,9 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
   .mode {
     display: grid;
     justify-items: start;
+    align-content: start;
     gap: var(--space-4);
     padding: var(--space-8);
-    border-radius: var(--radius-lg);
-    background: var(--color-white);
-    box-shadow: var(--shadow-sm);
   }
 
   .mode h3 {
@@ -655,70 +1030,22 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
   }
 
   .mode p {
-    color: var(--color-text-muted);
+    color: var(--color-text);
   }
 
-  .mode__icon {
-    display: grid;
-    place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 50%;
-    background: var(--color-lilac-200);
-    color: var(--color-primary);
+  .mode__services a {
+    color: var(--color-heading);
+    font-weight: 600;
   }
 
-  .mode__icon :global(svg) {
-    width: 1.8rem;
-    height: 1.8rem;
+  .mode__services a:hover {
+    color: var(--color-accent);
   }
 
   @media (min-width: 48rem) {
     .modes {
       grid-template-columns: repeat(2, 1fr);
     }
-  }
-
-  /* ---------- Manifesto ---------- */
-  .manifesto {
-    position: relative;
-    overflow: hidden;
-    padding-block: var(--space-20);
-    background: var(--gradient-brand);
-    color: var(--color-white);
-    text-align: center;
-  }
-
-  .manifesto__inner {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    gap: var(--space-6);
-  }
-
-  .manifesto__title {
-    color: var(--color-white);
-    font-size: var(--text-script);
-  }
-
-  .manifesto__values {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-3);
-  }
-
-  .manifesto__values li {
-    padding: var(--space-2) var(--space-5);
-    border: 1px solid rgb(255 255 255 / 0.6);
-    border-radius: var(--radius-pill);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .manifesto :global(.petal) {
-    fill: rgb(255 255 255 / 0.5);
   }
 
   /* ---------- Testimonials ---------- */
@@ -733,8 +1060,6 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     gap: var(--space-3);
     height: 100%;
     padding: var(--space-8);
-    border-radius: var(--radius-lg);
-    background: var(--color-bg-soft);
   }
 
   .testimonial blockquote {
@@ -749,7 +1074,13 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
   /* ---------- FAQ ---------- */
   .faq-layout {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-8);
+  }
+
+  .faq-layout__head {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
   }
 
   .faq {
@@ -761,12 +1092,21 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .faq__item[open] {
+    box-shadow: var(--shadow-md);
   }
 
   .faq__item summary {
     position: relative;
-    padding: var(--space-4) var(--space-12) var(--space-4) var(--space-5);
-    color: var(--color-plum-900);
+    display: flex;
+    align-items: center;
+    min-height: 3.5rem;
+    padding: var(--space-3) 4rem var(--space-3) var(--space-5);
+    color: var(--color-heading);
     font-weight: 700;
     cursor: pointer;
     list-style: none;
@@ -780,7 +1120,13 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     content: '+';
     position: absolute;
     top: 50%;
-    right: var(--space-5);
+    right: var(--space-4);
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--color-icon-bg);
     color: var(--color-accent);
     font-size: var(--text-xl);
     line-height: 1;
@@ -793,7 +1139,7 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
 
   .faq__item p {
     padding: 0 var(--space-5) var(--space-5);
-    color: var(--color-text-muted);
+    color: var(--color-text);
   }
 
   @media (min-width: 64rem) {
@@ -803,40 +1149,226 @@ const values = ['Es amor propio', 'Es autocuidado', 'Es reconexión', 'Es bienes
     }
   }
 
-  /* ---------- Contact ---------- */
-  .contact-cards {
-    display: grid;
-    gap: var(--space-4);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr));
+  /* ---------- Gracias and contact ---------- */
+  .thanks {
+    padding-block: var(--space-section) calc(var(--wave-h) + var(--space-10));
+    background: var(--gradient-soft);
   }
 
-  .contact-card {
+  .thanks__media {
+    height: clamp(14rem, 62vw, 22rem);
+    margin-bottom: var(--space-6);
+    overflow: hidden;
+  }
+
+  .thanks__media :global(.thanks__photo) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 20%;
+    mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  }
+
+  .thanks__inner {
+    position: relative;
+    display: grid;
+    gap: var(--space-10);
+  }
+
+  .thanks__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+    max-width: 34rem;
+  }
+
+  .thanks :global(.thanks__title) {
+    display: grid;
+  }
+
+  .thanks__script {
+    display: block;
+    /* Room for the G's swash, so it doesn't run into the next line. */
+    margin-bottom: 0.16em;
+    color: var(--color-heading);
+    font-family: var(--font-script);
+    font-size: clamp(4.25rem, 3rem + 6vw, 7.5rem);
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1;
+    text-transform: none;
+  }
+
+  .thanks__script :global(.thanks__heart) {
+    display: inline-block;
+    width: 0.5em;
+    height: auto;
+    margin-left: 0.04em;
+    vertical-align: 0.15em;
+    rotate: -10deg;
+  }
+
+  /* As in the catalog, the two-tone lines start under the body of the "G". */
+  @media (min-width: 48rem) {
+    .thanks :global(.thanks__title .two-tone__line) {
+      margin-left: 0.6em;
+    }
+  }
+
+  .thanks__text {
+    color: var(--color-heading);
+    font-size: var(--text-lg);
+  }
+
+  .contact-panel {
+    display: grid;
+    padding: var(--space-2) var(--space-5);
+  }
+
+  .contact-panel li + li {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .contact-panel__item {
     display: grid;
     justify-items: center;
-    align-content: start;
-    gap: var(--space-2);
-    padding: var(--space-6) var(--space-4);
-    border-radius: var(--radius-lg);
-    background: var(--color-white);
-    box-shadow: var(--shadow-sm);
+    gap: var(--space-1);
+    padding: var(--space-5) var(--space-2);
+    color: var(--color-heading);
     text-align: center;
+    text-decoration: none;
     overflow-wrap: anywhere;
   }
 
-  .contact-card :global(svg) {
-    width: 2rem;
-    height: 2rem;
-    color: var(--color-accent);
+  .contact-panel__item :global(.icon-circle) {
+    margin-bottom: var(--space-2);
+    transition: transform 0.35s var(--ease-out);
   }
 
-  .contact-card h3 {
+  .contact-panel__label {
     font-size: var(--text-sm);
     font-weight: 800;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
   }
 
-  .contact-card p {
+  .contact-panel__value {
+    color: var(--color-heading);
+  }
+
+  .contact-panel__item:hover .contact-panel__value {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
+  .thanks__more {
+    display: grid;
+    gap: var(--space-3);
+    color: var(--color-text);
+    font-size: var(--text-sm);
+  }
+
+  .thanks__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-6);
+  }
+
+  .thanks__links a,
+  .thanks__hours {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    overflow-wrap: anywhere;
+  }
+
+  .thanks__more :global(svg) {
+    flex: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--color-accent);
+  }
+
+  .thanks__disclaimer {
+    max-width: 44rem;
     color: var(--color-text-muted);
+    font-size: var(--text-xs);
+  }
+
+  @media (min-width: 40rem) {
+    .contact-panel {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding: var(--space-2);
+    }
+
+    .contact-panel li + li {
+      position: relative;
+      border-top: 0;
+    }
+
+    .contact-panel li + li::before {
+      content: '';
+      position: absolute;
+      inset: 18% auto 18% 0;
+      width: 1px;
+      background: var(--color-rule);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .thanks__media {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: min(46vw, 40rem);
+      height: auto;
+      margin: 0;
+    }
+
+    .thanks__media :global(.thanks__photo) {
+      object-position: 50% 15%;
+      mask-image:
+        linear-gradient(to right, transparent 0, #000 35%),
+        linear-gradient(to bottom, #000 70%, transparent 98%);
+      mask-composite: intersect;
+    }
+
+    .thanks__copy {
+      max-width: min(34rem, 52%);
+      padding-bottom: var(--space-12);
+    }
+
+    .contact-panel {
+      max-width: 54rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @media (hover: hover) {
+      .contact-panel__item:hover :global(.icon-circle) {
+        transform: scale(1.08);
+      }
+    }
+
+    @supports (animation-timeline: view()) {
+      .contact-panel,
+      .thanks__script {
+        animation-name: fade-up;
+        animation-duration: auto;
+        animation-timing-function: var(--ease-out);
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 30%;
+      }
+
+      .thanks__script :global(.thanks__heart) {
+        animation-name: pop-in;
+        animation-duration: auto;
+        animation-timing-function: var(--ease-out);
+        animation-fill-mode: both;
+        animation-timeline: view();
+        animation-range: entry 40% cover 40%;
+      }
+    }
   }
 </style>

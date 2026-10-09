@@ -21,7 +21,9 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
   >
     <UiIcon name="bag" />
     Mi pedido
-    <span class="mobile-bar__badge" data-order-count hidden>0</span>
+    <span class="mobile-bar__badge" data-order-count hidden>
+      0
+    </span>
   </button>
   <a class="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
     <UiIcon name="whatsapp" />

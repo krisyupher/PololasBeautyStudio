@@ -22,7 +22,9 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
     <div class="site-footer__grid">
       <div class="site-footer__brand">
         <Logo variant="footer" tone="white" />
-        <p>{business.bio} {business.slogan}.</p>
+        <p>
+          {business.bio} {business.slogan}.
+        </p>
         <ul class="social" role="list">
           <li>
             <a
@@ -107,10 +109,8 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
 
     <div class="site-footer__legal">
       <p>
-        © {year}
-        {business.name}. Hecho con <UiIcon name="heart" class="site-footer__heart" /><span
-          class="visually-hidden">amor</span
-        > en {business.location.city}.
+        © {year} {business.name}. Hecho con <UiIcon name="heart" class="site-footer__heart" />
+        <span class="visually-hidden">amor</span> en {business.location.city}.
       </p>
       <p>
         Los procedimientos de estética facial requieren valoración previa. Los resultados varían
@@ -121,9 +121,17 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
 </footer>
 
 <style>
+  /* The curve overlaps the end of the page, so the last section's background shows through it
+     (pages leave --wave-h of room at the bottom). The transparent part must not catch clicks. */
   .site-footer {
-    margin-top: var(--space-8);
+    position: relative;
+    margin-top: calc(-1 * var(--wave-h));
     color: var(--color-white);
+    pointer-events: none;
+  }
+
+  .site-footer :global(.wave-band__body) {
+    pointer-events: auto;
   }
 
   /* White everywhere: the dark gradient keeps it at 5.3:1 or more. */

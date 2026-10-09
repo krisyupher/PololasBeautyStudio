@@ -19,15 +19,13 @@ const current = Astro.url.pathname;
 
     <nav class="site-nav site-nav--desktop" aria-label="Principal">
       <ul role="list">
-        {
-          links.map((link) => (
-            <li>
-              <a href={link.href} aria-current={link.href === current ? 'page' : undefined}>
-                {link.label}
-              </a>
-            </li>
-          ))
-        }
+        {links.map((link) => (
+          <li>
+            <a href={link.href} aria-current={link.href === current ? 'page' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))}
       </ul>
     </nav>
 
@@ -42,7 +40,9 @@ const current = Astro.url.pathname;
       >
         <UiIcon name="bag" />
         <span>Mi pedido</span>
-        <span class="order-badge" data-order-count hidden>0</span>
+        <span class="order-badge" data-order-count hidden>
+          0
+        </span>
       </button>
 
       <details class="site-nav site-nav--mobile" data-mobile-menu>
@@ -51,15 +51,13 @@ const current = Astro.url.pathname;
         </summary>
         <nav aria-label="Menú principal">
           <ul role="list">
-            {
-              links.map((link) => (
-                <li>
-                  <a href={link.href} aria-current={link.href === current ? 'page' : undefined}>
-                    {link.label}
-                  </a>
-                </li>
-              ))
-            }
+            {links.map((link) => (
+              <li>
+                <a href={link.href} aria-current={link.href === current ? 'page' : undefined}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
           </ul>
         </nav>
       </details>

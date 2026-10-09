@@ -51,6 +51,8 @@
   --color-petal: var(--color-lilac-200);
   --color-petal-deep: var(--color-lilac-300);
   --color-border: #f3d3e6;
+  /* Borders that identify a control (inputs, unselected chips): 3.7:1 on white (WCAG 1.4.11). */
+  --color-border-strong: #aa73aa;
   --color-rule: rgb(255 36 137 / 0.55);
   --color-focus: var(--color-pink-700);
 
@@ -108,7 +110,7 @@
   /* Two-tone headlines (always 24px or more, so the hot pink line counts as large text). */
   --text-display-sm: clamp(1.6rem, 1.35rem + 1vw, 2rem);
   --text-display-md: clamp(1.9rem, 1.4rem + 2vw, 2.75rem);
-  --text-display-lg: clamp(2.3rem, 1.45rem + 3.4vw, 4rem);
+  --text-display-lg: clamp(2rem, 1.1rem + 3.9vw, 4rem);
   --text-display-xl: clamp(2.6rem, 1.3rem + 5vw, 4.75rem);
   /* Ms Madi has a small x-height: keep script text at 2.25rem or more. */
   --text-script: clamp(2.4rem, 1.8rem + 2.4vw, 3.5rem);
@@ -149,6 +151,8 @@
   --header-h: 4.5rem;
   --mobile-bar-h: 4.5rem;
   --tap-min: 2.75rem;
+  /* Height of the curved part of the catalog waves (WaveBand); the footer overlaps by this much. */
+  --wave-h: clamp(3.25rem, 1.6rem + 6vw, 8rem);
 
   /* Motion: calm, 0.6–1.2 s */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);

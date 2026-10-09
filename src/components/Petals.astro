@@ -98,29 +98,32 @@ const sidePetal = 'M100 188C140 136.88 120 74.4 100 46 80 74.4 60 136.88 100 188
     opacity: 0.9;
   }
 
-  /* Drift and sway slowly, each petal on its own clock. */
+  /*
+   * Drift and sway once, out and back, each petal on its own clock. Kept under
+   * five seconds so the motion needs no pause control (WCAG 2.2.2).
+   */
   @media (prefers-reduced-motion: no-preference) {
     .petals {
-      animation: petals-drift 18s ease-in-out infinite alternate;
+      animation: petals-drift 2.5s ease-in-out 2 alternate;
     }
 
     .petals--top-left,
     .petals--bottom-right {
-      animation-duration: 15s;
+      animation-duration: 2.2s;
     }
 
     .petals__petal {
-      animation: petal-sway 12s ease-in-out infinite alternate;
+      animation: petal-sway 2.4s ease-in-out 2 alternate both;
     }
 
     .petals__petal--right {
-      animation-duration: 16s;
-      animation-delay: -6s;
+      animation-duration: 2.1s;
+      animation-delay: 0.3s;
     }
 
     .petals__petal--center {
-      animation-duration: 20s;
-      animation-delay: -11s;
+      animation-duration: 1.9s;
+      animation-delay: 0.6s;
     }
   }
 

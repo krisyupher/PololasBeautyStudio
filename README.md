@@ -38,12 +38,14 @@ The first time on a new machine, run `npx playwright install chromium` if Google
 | Categories                                                                   | `src/data/categories.json`                      |
 | Frequently asked questions                                                   | `src/data/faq.ts`                               |
 | Testimonials (only with the client's written consent)                        | `src/data/testimonials.ts`                      |
-| Logo                                                                         | `src/assets/brand/logo.svg` (or `.png`/`.webp`) |
+| Logo (white version for purple backgrounds: `logo-white.png`)                | `src/assets/brand/logo.png` (or `.svg`/`.webp`) |
 | Treatment photos                                                             | `src/assets/services/<treatment-id>.jpg`        |
-| Home page photo                                                              | `src/assets/hero.jpg`                           |
+| Category photos                                                              | `src/assets/categories/<category-id>.jpg`       |
+| Instagram highlight covers                                                   | `src/assets/highlights/`                        |
+| Home page and "Gracias" photos                                               | `src/assets/hero.jpg`, `src/assets/gracias.jpg` |
 | Colors and fonts                                                             | `src/styles/tokens.css`                         |
 
-Images are picked up automatically at build time; until they exist, the site shows line-art icons and a text logo. Treatment order follows the order in `services.json`. The tests check the catalog data and block risky health claims such as "garantizado" or "sin riesgos".
+The design and the treatment list follow the owner's printed catalog. Its original files (`src/assets/Pololas/`) are not committed; the images above were cut out of the PDF and are small, so replace any of them with a higher-resolution original under the same name. Images are picked up automatically at build time. Treatment order follows the order in `services.json`. The tests check the catalog data and block risky health claims such as "garantizado", "permanente" or "procedimientos seguros".
 
 ## Deployment
 

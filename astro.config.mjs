@@ -31,7 +31,7 @@ export default defineConfig({
     csp: {
       directives: [
         "default-src 'self'",
-        "img-src 'self' data:",
+        "img-src 'self'",
         "font-src 'self'",
         "connect-src 'self'",
         "object-src 'none'",

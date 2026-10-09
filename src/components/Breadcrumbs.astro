@@ -13,17 +13,15 @@ const { items } = Astro.props;
 
 <nav class="breadcrumbs" aria-label="Ruta de navegación">
   <ol role="list">
-    {
-      items.map((item, index) => (
-        <li>
-          {item.href && index < items.length - 1 ? (
-            <a href={item.href}>{item.label}</a>
-          ) : (
-            <span aria-current="page">{item.label}</span>
-          )}
-        </li>
-      ))
-    }
+    {items.map((item, index) => (
+      <li>
+        {item.href && index < items.length - 1 ? (
+          <a href={item.href}>{item.label}</a>
+        ) : (
+          <span aria-current="page">{item.label}</span>
+        )}
+      </li>
+    ))}
   </ol>
 </nav>
 

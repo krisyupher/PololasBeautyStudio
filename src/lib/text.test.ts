@@ -37,6 +37,10 @@ describe('balanceLines', () => {
   });
 
   it('collapses extra whitespace', () => {
-    expect(balanceLines('  Armonía   en cada\ndetalle ')).toEqual(['Armonía', 'en cada', 'detalle']);
+    expect(balanceLines('  Armonía   en cada\ndetalle ')).toEqual([
+      'Armonía',
+      'en cada',
+      'detalle',
+    ]);
   });
 });

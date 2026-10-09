@@ -14,6 +14,10 @@ export default defineConfig({
   use: {
     // Navigate with relative paths (`page.goto('catalogo/')`) so the base path is kept.
     baseURL: BASE_URL,
+    // Every hidden starting state (opacity 0, clip-path, scroll-driven reveals) only exists under
+    // `prefers-reduced-motion: no-preference`, so "reduce" renders the settled page: axe measures
+    // final colors and clicks never wait on moving elements. `motion.spec.ts` opts back in.
+    reducedMotion: 'reduce',
     trace: 'on-first-retry',
   },
   webServer: {

@@ -1,8 +1,9 @@
 ---
 import '@fontsource-variable/montserrat';
-import '@fontsource/great-vibes';
+import '@fontsource/ms-madi';
 import '../styles/global.css';
 import montserratLatin from '@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url';
+import msMadiLatin from '@fontsource/ms-madi/files/ms-madi-latin-400-normal.woff2?url';
 import Seo from '../components/Seo.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -20,9 +21,11 @@ interface Props {
   noindex?: boolean;
   /** Pre-fills WhatsApp links with the treatment the visitor is looking at. */
   whatsappTopic?: string;
+  /** Letter-spaced line on the footer wave (treatment pages pass their category's closing). */
+  closing?: string;
 }
 
-const { title, description, jsonLd, noindex, whatsappTopic } = Astro.props;
+const { title, description, jsonLd, noindex, whatsappTopic, closing } = Astro.props;
 
 // Slim catalog for the order list in the browser. "<" is escaped so data can never close the tag.
 const catalogJson = JSON.stringify(toCatalogEntries(await getServices())).replace(/</g, '\\u003c');
@@ -33,12 +36,13 @@ const catalogJson = JSON.stringify(toCatalogEntries(await getServices())).replac
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#8e2a8e" />
+    <meta name="theme-color" content="#640064" />
     <meta name="format-detection" content="telephone=no" />
     <link rel="icon" type="image/png" sizes="48x48" href={withBase('/favicon-48.png')} />
     <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
     <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
     <link rel="preload" href={montserratLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={msMadiLatin} as="font" type="font/woff2" crossorigin />
     <Seo title={title} description={description} jsonLd={jsonLd} noindex={noindex} />
   </head>
   <body>
@@ -49,7 +53,7 @@ const catalogJson = JSON.stringify(toCatalogEntries(await getServices())).replac
     <main id="contenido" tabindex="-1">
       <slot />
     </main>
-    <Footer />
+    <Footer closing={closing} />
 
     <OrderDrawer />
     <MobileBar topic={whatsappTopic} />
@@ -88,10 +92,12 @@ const catalogJson = JSON.stringify(toCatalogEntries(await getServices())).replac
     max-width: calc(100vw - 2 * var(--gutter));
     padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
     border-radius: var(--radius-pill);
-    background: var(--color-plum-900);
+    background: var(--color-purple-900);
     color: var(--color-white);
     font-size: var(--text-sm);
-    box-shadow: var(--shadow-lg);
+    box-shadow:
+      0 0 0 3px rgb(255 255 255 / 0.9),
+      var(--shadow-lg);
     transform: translateX(-50%);
   }
 
@@ -99,7 +105,7 @@ const catalogJson = JSON.stringify(toCatalogEntries(await getServices())).replac
     flex: none;
     width: 1.2rem;
     height: 1.2rem;
-    color: var(--color-lilac-200);
+    color: var(--color-pink-200);
   }
 
   .toast__action {

@@ -32,7 +32,9 @@ const serialize = (data: Record<string, unknown>) => JSON.stringify(data).replac
 {ogImage && <meta property="og:image" content={ogImage} />}
 {ogImage && <meta property="og:image:width" content="1200" />}
 {ogImage && <meta property="og:image:height" content="630" />}
-{ogImage && <meta property="og:image:alt" content={`${business.name}: tu bienestar en buenas manos`} />}
+{ogImage && (
+  <meta property="og:image:alt" content={`${business.name}: tu bienestar en buenas manos`} />
+)}
 <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
 
 {jsonLd.map((data) => (

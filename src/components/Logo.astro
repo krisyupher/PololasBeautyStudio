@@ -20,21 +20,19 @@ const height = variant === 'header' ? 52 : 84;
   href={withBase('/')}
   aria-label={`${business.name}, ir al inicio`}
 >
-  {
-    logo ? (
-      <Image src={logo} alt="" class="logo__image" height={height} densities={[1, 2]} />
-    ) : (
-      <Fragment>
-        <span class="logo__mark" aria-hidden="true">
-          P
-        </span>
-        <span class="logo__text" aria-hidden="true">
-          <span class="logo__script">Pololas</span>
-          <span class="logo__caption">Beauty Studio</span>
-        </span>
-      </Fragment>
-    )
-  }
+  {logo ? (
+    <Image src={logo} alt="" class="logo__image" height={height} densities={[1, 2]} />
+  ) : (
+    <Fragment>
+      <span class="logo__mark" aria-hidden="true">
+        P
+      </span>
+      <span class="logo__text" aria-hidden="true">
+        <span class="logo__script">Pololas</span>
+        <span class="logo__caption">Beauty Studio</span>
+      </span>
+    </Fragment>
+  )}
 </a>
 
 <style>

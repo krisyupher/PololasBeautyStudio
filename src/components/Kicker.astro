@@ -20,14 +20,12 @@ const {
   class:list={['kicker', `kicker--${align}`, className]}
   aria-hidden={decorative ? 'true' : undefined}
 >
-  {
-    lines.map((line, index) => (
-      <Fragment>
-        {index > 0 && ' '}
-        <span class="kicker__line">{line}</span>
-      </Fragment>
-    ))
-  }
+  {lines.map((line, index) => (
+    <Fragment>
+      {index > 0 && ' '}
+      <span class="kicker__line">{line}</span>
+    </Fragment>
+  ))}
 </p>
 
 <style>

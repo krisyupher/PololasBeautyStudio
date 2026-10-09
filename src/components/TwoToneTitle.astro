@@ -37,19 +37,19 @@ const hasBefore = Astro.slots.has('before');
     className,
   ]}
 >
-  {
-    hasBefore && (
-      <Fragment>
-        <slot name="before" />{' '}
-      </Fragment>
-    )
-  }
+  {hasBefore && (
+    <Fragment>
+      <slot name="before" />{' '}
+    </Fragment>
+  )}
   <span class="two-tone__line two-tone__line--top">{lines[0]}</span>{' '}
   <span class="two-tone__line two-tone__line--bottom">{lines[1]}</span>
 </Tag>
 
 <style>
+  /* Last-resort wrapping, so a long word never pushes the page sideways at 320px. */
   .two-tone {
+    overflow-wrap: anywhere;
     font-weight: 800;
     letter-spacing: -0.01em;
     line-height: var(--leading-display);

@@ -55,12 +55,25 @@ function peopleLabel(people: number): string {
 
 /* ---------- Counters and "Agregar al pedido" buttons ---------- */
 
+const motionAllowed = window.matchMedia('(prefers-reduced-motion: no-preference)');
+let lastCount: number | null = null;
+
 function renderCounters(order: Order): void {
+  // A small "bump" (CSS class, see global.css) when something is added, not on first render.
+  const grew = lastCount !== null && order.length > lastCount && motionAllowed.matches;
+  lastCount = order.length;
   document.querySelectorAll<HTMLElement>('[data-order-count]').forEach((badge) => {
     badge.textContent = String(order.length);
     badge.hidden = order.length === 0;
+    if (grew) badge.classList.add('is-bumping');
   });
 }
+
+document.addEventListener('animationend', (event) => {
+  if (event.target instanceof HTMLElement && event.target.matches('[data-order-count]')) {
+    event.target.classList.remove('is-bumping');
+  }
+});
 
 function renderAddButtons(): void {
   document.querySelectorAll<HTMLButtonElement>('[data-add-to-order]').forEach((button) => {

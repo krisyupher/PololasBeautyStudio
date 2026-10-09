@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import LineIcon from '../components/icons/LineIcon.astro';
+import IconCircle from '../components/IconCircle.astro';
+import Petals from '../components/Petals.astro';
+import ScriptAccent from '../components/ScriptAccent.astro';
+import TwoToneTitle from '../components/TwoToneTitle.astro';
 import { catalogUrl, withBase } from '../lib/paths';
 ---
 
@@ -9,14 +12,19 @@ import { catalogUrl, withBase } from '../lib/paths';
   description="La página que buscas no existe. Explora nuestro catálogo de tratamientos."
   noindex
 >
-  <section class="section not-found">
+  <section class="section not-found petal-host">
+    <Petals position="top-left" size="md" />
+    <Petals position="bottom-right" size="lg" />
     <div class="container not-found__inner">
-      <span class="not-found__icon">
-        <LineIcon name="lotus" />
-      </span>
-      <h1 class="title">
-        Esta página se fue a <span class="script">relajar</span>
-      </h1>
+      <IconCircle line="lotus" size="xl" />
+      <TwoToneTitle
+        as="h1"
+        lines={['Esta página', 'se fue a relajar']}
+        size="lg"
+        align="center"
+        animate="load"
+      />
+      <ScriptAccent text="Respira, aquí te esperamos" lines={2} animate="none" />
       <p class="lead">No encontramos lo que buscabas, pero tenemos muchos tratamientos para ti.</p>
       <div class="not-found__actions">
         <a class="btn btn--primary" href={catalogUrl()}>
@@ -31,26 +39,16 @@ import { catalogUrl, withBase } from '../lib/paths';
 </BaseLayout>
 
 <style>
+  .not-found {
+    padding-bottom: calc(var(--wave-h) + var(--space-12));
+    background: var(--gradient-soft);
+  }
+
   .not-found__inner {
     display: grid;
     justify-items: center;
     gap: var(--space-5);
     text-align: center;
-  }
-
-  .not-found__icon {
-    display: grid;
-    place-items: center;
-    width: 7rem;
-    height: 7rem;
-    border-radius: 50%;
-    background: var(--color-lilac-200);
-    color: var(--color-primary);
-  }
-
-  .not-found__icon :global(svg) {
-    width: 70%;
-    height: 70%;
   }
 
   .not-found__actions {
