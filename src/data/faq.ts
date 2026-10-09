@@ -1,3 +1,4 @@
+import { MODALITY_LABELS } from '../lib/constants';
 import { business } from './business';
 
 export const faqs = [
@@ -13,7 +14,7 @@ export const faqs = [
   },
   {
     question: '¿Atienden a domicilio?',
-    answer: `Sí. Muchos de nuestros servicios de spa, cuidado facial, tratamientos corporales y depilación los llevamos a tu casa en ${business.location.city}. Te confirmamos la cobertura y el costo del domicilio por WhatsApp.`,
+    answer: `Sí. Algunos servicios de bienestar y de estética corporal los llevamos a tu casa en ${business.location.city}. En el catálogo puedes filtrar por "${MODALITY_LABELS.domicilio}" para verlos. Te confirmamos la cobertura y el costo del domicilio por WhatsApp.`,
   },
   {
     question: '¿Dónde están ubicados?',
@@ -22,11 +23,11 @@ export const faqs = [
   {
     question: '¿Los tratamientos inyectables requieren valoración?',
     answer:
-      'Sí. Antes de cualquier procedimiento de armonización facial hacemos una valoración para confirmar que el tratamiento es adecuado para ti y definir el protocolo. Los resultados varían según cada persona.',
+      'Sí. Los procedimientos de estética facial (toxina botulínica, ácido hialurónico, bioestimuladores e hilos) están a cargo de un profesional de la salud, previa valoración, para confirmar que el tratamiento es adecuado para ti y definir el protocolo. Los resultados varían según cada persona.',
   },
   {
     question: '¿Atienden hombres?',
     answer:
-      'Claro que sí. El cuidado personal también es para ellos: tratamientos faciales, masajes y armonización con resultados naturales.',
+      'Claro que sí. El cuidado personal también es para ellos: tratamientos de estética facial, bienestar y estética corporal, buscando siempre resultados naturales.',
   },
 ] as const;

@@ -1,0 +1,123 @@
+---
+/**
+ * The catalog's two-tone headline: first line purple, second hot pink ("Estética" / "Facial").
+ * The pink line is always 24px or more, so it counts as large text for contrast (3.6:1).
+ * A real space separates the lines, so the accessible name reads "Estética Facial".
+ */
+interface Props {
+  lines: readonly [string, string];
+  as?: 'h1' | 'h2' | 'h3';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  id?: string;
+  align?: 'start' | 'center' | 'end';
+  /** "load": staggered fade-up on page load (page titles). "scroll": reveals as it scrolls in. */
+  animate?: 'load' | 'scroll' | 'none';
+  class?: string;
+}
+
+const {
+  lines,
+  as: Tag = 'h2',
+  size = 'lg',
+  id,
+  align = 'start',
+  animate = 'scroll',
+  class: className,
+} = Astro.props;
+const hasBefore = Astro.slots.has('before');
+---
+
+<Tag
+  id={id}
+  class:list={[
+    'two-tone',
+    `two-tone--${size}`,
+    `two-tone--${align}`,
+    animate !== 'none' && `two-tone--${animate}`,
+    className,
+  ]}
+>
+  {
+    hasBefore && (
+      <Fragment>
+        <slot name="before" />{' '}
+      </Fragment>
+    )
+  }
+  <span class="two-tone__line two-tone__line--top">{lines[0]}</span>{' '}
+  <span class="two-tone__line two-tone__line--bottom">{lines[1]}</span>
+</Tag>
+
+<style>
+  .two-tone {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: var(--leading-display);
+    text-transform: uppercase;
+  }
+
+  .two-tone__line {
+    display: block;
+  }
+
+  .two-tone__line--top {
+    color: var(--color-heading);
+  }
+
+  .two-tone__line--bottom {
+    color: var(--color-accent-bright);
+  }
+
+  .two-tone--sm {
+    font-size: var(--text-display-sm);
+  }
+
+  .two-tone--md {
+    font-size: var(--text-display-md);
+  }
+
+  .two-tone--lg {
+    font-size: var(--text-display-lg);
+  }
+
+  .two-tone--xl {
+    font-size: var(--text-display-xl);
+  }
+
+  .two-tone--center {
+    text-align: center;
+  }
+
+  .two-tone--end {
+    text-align: end;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .two-tone--load .two-tone__line {
+      animation: fade-up var(--duration-reveal) var(--ease-out) 0.1s both;
+    }
+
+    .two-tone--load .two-tone__line--bottom {
+      animation-delay: 0.25s;
+    }
+
+    @supports (animation-timeline: view()) {
+      .two-tone--scroll {
+        view-timeline-name: --two-tone;
+      }
+
+      .two-tone--scroll .two-tone__line {
+        animation-name: fade-up;
+        animation-duration: auto;
+        animation-timing-function: var(--ease-out);
+        animation-fill-mode: both;
+        animation-timeline: --two-tone;
+        animation-range: entry 0% cover 26%;
+      }
+
+      .two-tone--scroll .two-tone__line--bottom {
+        animation-range: entry 30% cover 34%;
+      }
+    }
+  }
+</style>

@@ -31,7 +31,10 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
+  /* "clip" (not "hidden") keeps decorative petals from causing sideways scrolling without
+     turning the body into a scroll container, so scroll-driven animations track the viewport. */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 img,
@@ -76,7 +79,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-primary-strong);
+  color: var(--color-accent);
 }
 
 ul[role='list'],
@@ -119,7 +122,7 @@ ol[role='list'] {
   left: var(--space-2);
   z-index: 100;
   padding: var(--space-2) var(--space-4);
-  background: var(--color-plum-900);
+  background: var(--color-purple-900);
   color: var(--color-white);
   border-radius: var(--radius-sm);
   transform: translateY(-200%);
@@ -136,19 +139,31 @@ ol[role='list'] {
 }
 
 .section {
-  padding-block: var(--space-16);
+  padding-block: var(--space-section);
 }
 
 .section--soft {
-  background: var(--color-bg-soft);
+  background: var(--gradient-soft);
+}
+
+/* Sections with decorative petals: petals sit behind the content (z-index -1 inside the
+   isolated stacking context) and are clipped at the section edges. */
+.petal-host {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  overflow: clip;
 }
 
 .section__header {
-  max-width: 42rem;
-  margin-bottom: var(--space-8);
+  display: grid;
+  gap: var(--space-3);
+  max-width: 44rem;
+  margin-bottom: var(--space-10);
 }
 
 .section__header--center {
+  justify-items: center;
   margin-inline: auto;
   text-align: center;
 }
@@ -164,7 +179,8 @@ ol[role='list'] {
 .title {
   font-size: var(--text-2xl);
   font-weight: 800;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-display);
   text-transform: uppercase;
 }
 
@@ -176,9 +192,38 @@ ol[role='list'] {
   color: var(--color-primary);
 }
 
+/* The catalog's letter-spaced lines ("Cuida de ti, relájate…"). */
+.spaced {
+  color: var(--color-heading);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-spaced);
+  line-height: 1.9;
+  text-transform: uppercase;
+}
+
+/* Short hot-pink rule under letter-spaced lines and paragraphs. */
+.rule {
+  display: block;
+  width: 3.25rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent-bright);
+}
+
 .lead {
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font-size: var(--text-lg);
+}
+
+/* White translucent panel, as behind the catalog's service rows and contact details. */
+.glass {
+  border: 1px solid rgb(255 255 255 / 0.9);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-glass);
+  box-shadow:
+    0 0 0 1px rgb(255 36 137 / 0.08),
+    var(--shadow-md);
 }
 
 /* ---------- Buttons ---------- */
@@ -201,7 +246,7 @@ ol[role='list'] {
     background-color 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease,
-    box-shadow 0.2s ease,
+    box-shadow 0.3s ease,
     transform 0.2s var(--ease-out);
 }
 
@@ -215,15 +260,34 @@ ol[role='list'] {
   transform: translateY(1px);
 }
 
+/* Gradient button. The gradient lives on a pseudo-element twice as wide as the button, so the
+   hover "shift" is a transform (no repaint of the background). */
 .btn--primary {
-  background: var(--gradient-brand);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--color-purple-900);
   color: var(--color-white);
   box-shadow: var(--shadow-sm);
 }
 
+.btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: 200%;
+  background: var(--gradient-brand-shift);
+  transition: transform 0.6s var(--ease-out);
+}
+
 .btn--primary:hover {
   color: var(--color-white);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-pink);
+}
+
+.btn--primary:hover::before {
+  transform: translateX(-50%);
 }
 
 .btn--outline {
@@ -233,6 +297,7 @@ ol[role='list'] {
 }
 
 .btn--outline:hover {
+  border-color: var(--color-accent);
   background: var(--color-lilac-100);
   color: var(--color-primary-strong);
 }
@@ -254,6 +319,7 @@ ol[role='list'] {
 
 .btn--ghost:hover {
   background: var(--color-lilac-100);
+  color: var(--color-primary-strong);
 }
 
 .btn--sm {
@@ -297,8 +363,8 @@ ol[role='list'] {
   gap: var(--space-1);
   padding: 0.2rem 0.7rem;
   border-radius: var(--radius-pill);
-  background: var(--color-lilac-100);
-  color: var(--color-plum-900);
+  background: var(--color-icon-bg);
+  color: var(--color-heading);
   font-size: var(--text-xs);
   font-weight: 600;
   white-space: nowrap;
@@ -310,8 +376,9 @@ ol[role='list'] {
 }
 
 .pill--outline {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--color-orchid-400);
+  background: var(--color-white);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+  color: var(--color-accent);
 }
 
 .chip-row {
@@ -334,37 +401,46 @@ ol[role='list'] {
 .chip {
   flex: none;
   min-height: var(--tap-min);
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-white);
-  color: var(--color-plum-900);
+  color: var(--color-heading);
   font-size: var(--text-sm);
   font-weight: 600;
   white-space: nowrap;
   transition:
     background-color 0.2s ease,
     color 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .chip:hover {
-  border-color: var(--color-orchid-400);
+  border-color: var(--color-accent);
 }
 
 .chip[aria-pressed='true'] {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: transparent;
+  background: var(--gradient-brand);
+  background-color: var(--color-purple-900);
   color: var(--color-white);
+  box-shadow: var(--shadow-pink);
 }
 
 /* ---------- Grids ---------- */
+/* Service rows need width (photo + text), so cards go one per row, two from 64rem. */
 .card-grid {
   display: grid;
-  gap: var(--space-6);
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-5);
   padding: 0;
   list-style: none;
+}
+
+@media (min-width: 64rem) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* ---------- Forms ---------- */
@@ -373,7 +449,7 @@ ol[role='list'] {
   gap: var(--space-1);
   font-size: var(--text-sm);
   font-weight: 600;
-  color: var(--color-plum-900);
+  color: var(--color-heading);
 }
 
 .field input,
@@ -416,6 +492,8 @@ ol[role='list'] {
 .prose h2 {
   margin-top: var(--space-10);
   font-size: var(--text-xl);
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .prose ul {
@@ -430,5 +508,130 @@ ol[role='list'] {
 
   body {
     padding-bottom: var(--mobile-bar-h);
+  }
+}
+
+/* ---------- Motion ---------- */
+/*
+ * Every hidden starting state (opacity 0, clip-path, stroke-dashoffset) lives in a keyframe that
+ * only runs inside `prefers-reduced-motion: no-preference`; scroll-driven ones also need
+ * `@supports (animation-timeline: view())`. Without motion or support, content simply shows.
+ * Animations touch only transform (and the individual translate/scale properties), opacity,
+ * clip-path and stroke-dashoffset.
+ */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    scale: 0.55;
+  }
+
+  60% {
+    opacity: 1;
+    scale: 1.08;
+  }
+
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* Left-to-right "handwriting" wipe. Negative insets leave room for script swashes. */
+@keyframes wipe-in {
+  from {
+    clip-path: inset(-40% 100% -55% -12%);
+  }
+
+  to {
+    clip-path: inset(-40% -12% -55% -12%);
+  }
+}
+
+/* Strokes with pathLength="1" and stroke-dasharray: 1 draw themselves. */
+@keyframes draw-in {
+  from {
+    stroke-dashoffset: 1;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes settle {
+  from {
+    scale: 1.06;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+/* Two beats, then a rest. */
+@keyframes heartbeat {
+  0%,
+  36%,
+  100% {
+    transform: scale(1);
+  }
+
+  8% {
+    transform: scale(1.14);
+  }
+
+  16% {
+    transform: scale(1);
+  }
+
+  24% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes bump {
+  0%,
+  100% {
+    scale: 1;
+  }
+
+  35% {
+    scale: 1.35;
+  }
+
+  65% {
+    scale: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Order count badge, toggled by order-ui.ts when an item is added. */
+  [data-order-count].is-bumping {
+    animation: bump 0.5s var(--ease-out);
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Each element gets its own view timeline, so rows reveal (and stagger) as they enter. */
+    .reveal {
+      animation-name: fade-up;
+      animation-duration: auto;
+      animation-timing-function: var(--ease-out);
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
   }
 }

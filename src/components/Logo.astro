@@ -1,35 +1,40 @@
 ---
 import { Image } from 'astro:assets';
 import { business } from '../data/business';
-import { getLogoImage } from '../lib/images';
+import { getLogoImage, getLogoWhiteImage } from '../lib/images';
 import { withBase } from '../lib/paths';
 
 interface Props {
   variant?: 'header' | 'footer';
+  /** "white" uses src/assets/brand/logo-white.png, for purple backgrounds. */
+  tone?: 'color' | 'white';
 }
 
-const { variant = 'header' } = Astro.props;
-const logo = getLogoImage();
+const { variant = 'header', tone = 'color' } = Astro.props;
+const logo = tone === 'white' ? (getLogoWhiteImage() ?? getLogoImage()) : getLogoImage();
+const height = variant === 'header' ? 52 : 84;
 ---
 
 <a
-  class:list={['logo', `logo--${variant}`]}
+  class:list={['logo', `logo--${variant}`, `logo--${tone}`]}
   href={withBase('/')}
   aria-label={`${business.name}, ir al inicio`}
 >
-  {logo ? (
-    <Image src={logo} alt="" class="logo__image" height={variant === 'header' ? 48 : 72} />
-  ) : (
-    <>
-      <span class="logo__mark" aria-hidden="true">
-        P
-      </span>
-      <span class="logo__text" aria-hidden="true">
-        <span class="logo__script">Pololas</span>
-        <span class="logo__caption">Beauty Studio</span>
-      </span>
-    </>
-  )}
+  {
+    logo ? (
+      <Image src={logo} alt="" class="logo__image" height={height} densities={[1, 2]} />
+    ) : (
+      <Fragment>
+        <span class="logo__mark" aria-hidden="true">
+          P
+        </span>
+        <span class="logo__text" aria-hidden="true">
+          <span class="logo__script">Pololas</span>
+          <span class="logo__caption">Beauty Studio</span>
+        </span>
+      </Fragment>
+    )
+  }
 </a>
 
 <style>
@@ -46,13 +51,13 @@ const logo = getLogoImage();
     place-items: center;
     width: 2.6rem;
     height: 2.6rem;
+    padding-top: 0.3rem;
     border-radius: 50%;
-    background: var(--color-lilac-200);
+    background: var(--color-icon-bg);
     color: var(--color-primary);
     font-family: var(--font-script);
-    font-size: 1.9rem;
+    font-size: 2.2rem;
     line-height: 1;
-    padding-top: 0.3rem;
   }
 
   .logo__text {
@@ -61,14 +66,10 @@ const logo = getLogoImage();
   }
 
   .logo__script {
-    font-family: var(--font-script);
-    font-size: 2rem;
-    color: var(--color-primary);
-    background: var(--gradient-brand);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     padding-right: 0.15em;
+    color: var(--color-primary);
+    font-family: var(--font-script);
+    font-size: 2.4rem;
   }
 
   .logo__caption {
@@ -82,18 +83,15 @@ const logo = getLogoImage();
     text-transform: uppercase;
   }
 
-  .logo--footer .logo__mark {
-    width: 3.2rem;
-    height: 3.2rem;
-    font-size: 2.3rem;
+  .logo--white,
+  .logo--white .logo__script,
+  .logo--white .logo__caption {
+    color: var(--color-white);
   }
 
-  .logo--footer .logo__script {
-    font-size: 2.6rem;
-  }
-
-  .logo--footer .logo__caption {
-    font-size: 0.7rem;
+  .logo--white .logo__mark {
+    background: rgb(255 255 255 / 0.15);
+    color: var(--color-white);
   }
 
   .logo :global(.logo__image) {
@@ -101,10 +99,20 @@ const logo = getLogoImage();
   }
 
   .logo--header :global(.logo__image) {
-    height: 48px;
+    height: 44px;
   }
 
   .logo--footer :global(.logo__image) {
     height: 72px;
+  }
+
+  @media (min-width: 48rem) {
+    .logo--header :global(.logo__image) {
+      height: 52px;
+    }
+
+    .logo--footer :global(.logo__image) {
+      height: 84px;
+    }
   }
 </style>

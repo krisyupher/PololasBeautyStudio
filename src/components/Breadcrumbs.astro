@@ -13,15 +13,17 @@ const { items } = Astro.props;
 
 <nav class="breadcrumbs" aria-label="Ruta de navegación">
   <ol role="list">
-    {items.map((item, index) => (
-      <li>
-        {item.href && index < items.length - 1 ? (
-          <a href={item.href}>{item.label}</a>
-        ) : (
-          <span aria-current="page">{item.label}</span>
-        )}
-      </li>
-    ))}
+    {
+      items.map((item, index) => (
+        <li>
+          {item.href && index < items.length - 1 ? (
+            <a href={item.href}>{item.label}</a>
+          ) : (
+            <span aria-current="page">{item.label}</span>
+          )}
+        </li>
+      ))
+    }
   </ol>
 </nav>
 
@@ -29,23 +31,37 @@ const { items } = Astro.props;
   .breadcrumbs ol {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-1) var(--space-2);
     color: var(--color-text-muted);
     font-size: var(--text-xs);
   }
 
+  .breadcrumbs li {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+  }
+
   .breadcrumbs li:not(:last-child)::after {
     content: '/';
     margin-left: var(--space-2);
-    color: var(--color-orchid-400);
+    color: var(--color-accent);
   }
 
   .breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
     color: var(--color-text-muted);
   }
 
+  .breadcrumbs a:hover {
+    color: var(--color-accent);
+  }
+
   .breadcrumbs [aria-current='page'] {
-    color: var(--color-plum-900);
+    color: var(--color-heading);
     font-weight: 600;
   }
 </style>

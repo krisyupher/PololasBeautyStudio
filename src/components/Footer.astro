@@ -1,127 +1,153 @@
 ---
 import Logo from './Logo.astro';
+import WaveBand from './WaveBand.astro';
 import UiIcon from './icons/UiIcon.astro';
 import { business } from '../data/business';
 import { withBase } from '../lib/paths';
 import { buildInquiryMessage, buildWhatsAppUrl } from '../lib/whatsapp';
 
+interface Props {
+  /** Letter-spaced closing line shown on the wave (a treatment page passes its category's). */
+  closing?: string;
+}
+
+const { closing } = Astro.props;
 const year = new Date().getFullYear();
 const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
 ---
 
+<!-- The catalog's closing wave, with the white logo. All text sits on the dark gradient. -->
 <footer class="site-footer">
-  <div class="container site-footer__grid">
-    <div class="site-footer__brand">
-      <Logo variant="footer" />
-      <p>
-        {business.bio} {business.slogan}
-      </p>
-      <ul class="social" role="list">
-        <li>
-          <a
-            href={business.social.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Instagram (se abre en una pestaña nueva)"
-          >
-            <UiIcon name="instagram" />
-          </a>
-        </li>
-        <li>
-          <a
-            href={business.social.facebook}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Facebook (se abre en una pestaña nueva)"
-          >
-            <UiIcon name="facebook" />
-          </a>
-        </li>
-        <li>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp (se abre en una pestaña nueva)"
-          >
+  <WaveBand text={closing}>
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <Logo variant="footer" tone="white" />
+        <p>{business.bio} {business.slogan}.</p>
+        <ul class="social" role="list">
+          <li>
+            <a
+              href={business.social.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram (se abre en una pestaña nueva)"
+            >
+              <UiIcon name="instagram" />
+            </a>
+          </li>
+          <li>
+            <a
+              href={business.social.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook (se abre en una pestaña nueva)"
+            >
+              <UiIcon name="facebook" />
+            </a>
+          </li>
+          <li>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp (se abre en una pestaña nueva)"
+            >
+              <UiIcon name="whatsapp" />
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <nav aria-label="Pie de página">
+        <h2 class="site-footer__title">Explora</h2>
+        <ul class="site-footer__links" role="list">
+          <li>
+            <a href={withBase('/catalogo/')}>Catálogo de tratamientos</a>
+          </li>
+          <li>
+            <a href={withBase('/#como-pedir')}>Cómo hacer tu pedido</a>
+          </li>
+          <li>
+            <a href={withBase('/#modalidades')}>En el estudio o a domicilio</a>
+          </li>
+          <li>
+            <a href={withBase('/#preguntas')}>Preguntas frecuentes</a>
+          </li>
+          <li>
+            <a href={withBase('/privacidad/')}>Política de privacidad</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div>
+        <h2 class="site-footer__title">Contacto</h2>
+        <ul class="contact-list" role="list">
+          <li>
             <UiIcon name="whatsapp" />
-          </a>
-        </li>
-      </ul>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              {business.whatsapp.display}
+            </a>
+          </li>
+          <li>
+            <UiIcon name="mail" />
+            <a href={`mailto:${business.email}`}>{business.email}</a>
+          </li>
+          <li>
+            <UiIcon name="pin" />
+            <span>
+              {business.location.neighborhood}, {business.location.city}
+            </span>
+          </li>
+          <li>
+            <UiIcon name="clock" />
+            <span>{business.hoursNote}</span>
+          </li>
+        </ul>
+      </div>
     </div>
 
-    <nav aria-label="Pie de página">
-      <h2 class="site-footer__title">Explora</h2>
-      <ul role="list">
-        <li>
-          <a href={withBase('/catalogo/')}>Catálogo de tratamientos</a>
-        </li>
-        <li>
-          <a href={withBase('/#como-pedir')}>Cómo hacer tu pedido</a>
-        </li>
-        <li>
-          <a href={withBase('/#modalidades')}>En el estudio o a domicilio</a>
-        </li>
-        <li>
-          <a href={withBase('/#preguntas')}>Preguntas frecuentes</a>
-        </li>
-        <li>
-          <a href={withBase('/privacidad/')}>Política de privacidad</a>
-        </li>
-      </ul>
-    </nav>
-
-    <div>
-      <h2 class="site-footer__title">Contacto</h2>
-      <ul class="contact-list" role="list">
-        <li>
-          <UiIcon name="whatsapp" />
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            {business.whatsapp.display}
-          </a>
-        </li>
-        <li>
-          <UiIcon name="mail" />
-          <a href={`mailto:${business.email}`}>{business.email}</a>
-        </li>
-        <li>
-          <UiIcon name="pin" />
-          <span>
-            {business.location.neighborhood}, {business.location.city}
-          </span>
-        </li>
-        <li>
-          <UiIcon name="clock" />
-          <span>{business.hoursNote}</span>
-        </li>
-      </ul>
+    <div class="site-footer__legal">
+      <p>
+        © {year}
+        {business.name}. Hecho con <UiIcon name="heart" class="site-footer__heart" /><span
+          class="visually-hidden">amor</span
+        > en {business.location.city}.
+      </p>
+      <p>
+        Los procedimientos de estética facial requieren valoración previa. Los resultados varían
+        según cada persona.
+      </p>
     </div>
-  </div>
-
-  <div class="container site-footer__legal">
-    <p>
-      © {year} {business.name}. Hecho con 💜 en {business.location.city}.
-    </p>
-    <p>
-      Los procedimientos de armonización facial requieren valoración previa. Los resultados varían
-      según cada persona.
-    </p>
-  </div>
+  </WaveBand>
 </footer>
 
 <style>
   .site-footer {
-    padding-top: var(--space-16);
-    background: var(--color-plum-900);
-    color: rgb(255 255 255 / 0.85);
+    margin-top: var(--space-8);
+    color: var(--color-white);
+  }
+
+  /* White everywhere: the dark gradient keeps it at 5.3:1 or more. */
+  .site-footer :global(.wave-band__content) {
+    gap: var(--space-10);
+    justify-items: stretch;
+  }
+
+  .site-footer :global(.wave-band__text) {
+    justify-self: end;
   }
 
   .site-footer a {
     color: var(--color-white);
+    text-decoration-color: rgb(255 255 255 / 0.5);
   }
 
   .site-footer a:hover {
-    color: var(--color-lilac-200);
+    color: var(--color-white);
+    text-decoration-color: currentColor;
+  }
+
+  .site-footer :focus-visible {
+    outline-color: var(--color-white);
   }
 
   .site-footer__grid {
@@ -131,34 +157,35 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
 
   .site-footer__brand {
     display: grid;
+    justify-items: start;
     gap: var(--space-4);
     max-width: 24rem;
   }
 
-  /* The wordmark is drawn for light backgrounds; give it a soft card on the dark footer. */
-  .site-footer__brand :global(.logo) {
-    justify-self: start;
-    padding: var(--space-3) var(--space-4);
-    border-radius: var(--radius-md);
-    background: var(--color-white);
-  }
-
   .site-footer__title {
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
     color: var(--color-white);
-    font-size: var(--text-sm);
-    letter-spacing: 0.14em;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
   }
 
   .site-footer ul {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-1);
+  }
+
+  .site-footer__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
   }
 
   .social {
     grid-auto-flow: column;
     justify-content: start;
+    gap: var(--space-2);
   }
 
   .social a {
@@ -166,12 +193,13 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
     place-items: center;
     width: var(--tap-min);
     height: var(--tap-min);
-    border: 1px solid rgb(255 255 255 / 0.35);
+    border: 1px solid rgb(255 255 255 / 0.5);
     border-radius: 50%;
+    transition: background-color 0.2s ease;
   }
 
   .social a:hover {
-    background: rgb(255 255 255 / 0.12);
+    background: rgb(255 255 255 / 0.14);
   }
 
   .social :global(svg) {
@@ -181,25 +209,31 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage());
 
   .contact-list li {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--space-3);
+    min-height: var(--tap-min);
+    overflow-wrap: anywhere;
   }
 
   .contact-list :global(svg) {
     flex: none;
     width: 1.25rem;
     height: 1.25rem;
-    margin-top: 0.15rem;
-    color: var(--color-lilac-200);
   }
 
   .site-footer__legal {
     display: grid;
     gap: var(--space-2);
-    margin-top: var(--space-12);
-    padding-block: var(--space-6);
-    border-top: 1px solid rgb(255 255 255 / 0.15);
+    padding-top: var(--space-5);
+    border-top: 1px solid rgb(255 255 255 / 0.3);
     font-size: var(--text-xs);
+  }
+
+  .site-footer__legal :global(.site-footer__heart) {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
   }
 
   @media (min-width: 48rem) {

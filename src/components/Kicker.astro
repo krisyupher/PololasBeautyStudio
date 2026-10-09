@@ -1,0 +1,69 @@
+---
+/** The catalog's letter-spaced kicker ("Belleza / Bienestar / Confianza / En un solo lugar"). */
+interface Props {
+  lines?: readonly string[];
+  align?: 'start' | 'center' | 'end';
+  /** Repeated on several sections: hide the repeats from screen readers. */
+  decorative?: boolean;
+  class?: string;
+}
+
+const {
+  lines = ['Belleza', 'Bienestar', 'Confianza', 'En un solo lugar'],
+  align = 'start',
+  decorative = false,
+  class: className,
+} = Astro.props;
+---
+
+<p
+  class:list={['kicker', `kicker--${align}`, className]}
+  aria-hidden={decorative ? 'true' : undefined}
+>
+  {
+    lines.map((line, index) => (
+      <Fragment>
+        {index > 0 && ' '}
+        <span class="kicker__line">{line}</span>
+      </Fragment>
+    ))
+  }
+</p>
+
+<style>
+  .kicker {
+    display: grid;
+    justify-items: start;
+    gap: 0.2em;
+    color: var(--color-heading);
+    font-size: var(--text-2xs);
+    font-weight: 500;
+    letter-spacing: 0.34em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .kicker::after {
+    content: '';
+    width: 3.25rem;
+    height: 2px;
+    margin-top: 0.9rem;
+    border-radius: 2px;
+    background: var(--color-accent-bright);
+  }
+
+  .kicker--center {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .kicker--end {
+    justify-items: end;
+    text-align: end;
+  }
+
+  /* Letter-spacing also follows the last letter; pull it back so the column aligns. */
+  .kicker--end .kicker__line {
+    margin-right: -0.34em;
+  }
+</style>

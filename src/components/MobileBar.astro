@@ -21,9 +21,7 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
   >
     <UiIcon name="bag" />
     Mi pedido
-    <span class="mobile-bar__badge" data-order-count hidden>
-      0
-    </span>
+    <span class="mobile-bar__badge" data-order-count hidden>0</span>
   </button>
   <a class="btn btn--whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
     <UiIcon name="whatsapp" />
@@ -40,11 +38,12 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
     grid-template-columns: 1fr 1fr;
     gap: var(--space-2);
     padding: var(--space-3) var(--gutter) max(var(--space-3), env(safe-area-inset-bottom));
-    border-top: 1px solid var(--color-border);
-    background: rgb(255 255 255 / 0.96);
-    backdrop-filter: blur(10px);
+    border-top: 1px solid rgb(255 36 137 / 0.15);
+    background: rgb(255 255 255 / 0.94);
+    backdrop-filter: blur(12px);
   }
 
+  /* White on the accessible pink, with a white ring so it stands off the gradient button. */
   .mobile-bar__badge {
     display: inline-grid;
     place-items: center;
@@ -52,9 +51,10 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
     height: 1.4rem;
     padding-inline: 0.35rem;
     border-radius: var(--radius-pill);
-    background: var(--color-white);
-    color: var(--color-primary);
+    background: var(--color-accent);
+    color: var(--color-white);
     font-size: var(--text-xs);
+    box-shadow: 0 0 0 2px var(--color-white);
   }
 
   @media (min-width: 48rem) {

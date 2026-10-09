@@ -1,96 +1,146 @@
 ---
-/** Decorative falling petals, echoing the petal backgrounds of the brand's posts. */
-const petals = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
+/**
+ * The catalog's large, soft three-petal clusters, placed at a section corner. Decorative.
+ * The section needs the `petal-host` class: petals sit behind its content and are clipped.
+ */
+interface Props {
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  size?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const { position, size = 'md', class: className } = Astro.props;
+// Petals grow from a shared base at (100, 188); the side petals are the same leaf, tilted.
+const centerPetal = 'M100 188C146 126.8 123 52 100 18 77 52 54 126.8 100 188Z';
+const sidePetal = 'M100 188C140 136.88 120 74.4 100 46 80 74.4 60 136.88 100 188Z';
 ---
 
-<div class="petals" aria-hidden="true">
-  {petals.map((name) => (
-    <svg class={`petal ${name}`} viewBox="0 0 24 32">
-      <path d="M12 1c7 7.4 10 16 6.2 23.6-2.8 5.4-9.6 5.4-12.4 0C2 17 5 8.4 12 1z" />
-    </svg>
-  ))}
-</div>
+<svg
+  class:list={['petals', `petals--${position}`, `petals--${size}`, className]}
+  viewBox="0 0 200 200"
+  aria-hidden="true"
+  focusable="false"
+>
+  <g class="petals__petal petals__petal--left">
+    <path d={sidePetal} transform="rotate(-40 100 188)"></path>
+  </g>
+  <g class="petals__petal petals__petal--right">
+    <path d={sidePetal} transform="rotate(40 100 188)"></path>
+  </g>
+  <g class="petals__petal petals__petal--center">
+    <path d={centerPetal}></path>
+  </g>
+</svg>
 
 <style>
   .petals {
     position: absolute;
-    inset: 0;
-    overflow: hidden;
+    z-index: -1;
+    width: var(--petals-size);
+    height: auto;
+    overflow: visible;
     pointer-events: none;
   }
 
-  .petal {
-    position: absolute;
-    width: 1.4rem;
-    fill: var(--color-lilac-200);
+  .petals--sm {
+    --petals-size: clamp(5.5rem, 3.5rem + 8vw, 9rem);
+  }
+
+  .petals--md {
+    --petals-size: clamp(7.5rem, 4.5rem + 11vw, 14rem);
+  }
+
+  .petals--lg {
+    --petals-size: clamp(9rem, 5rem + 16vw, 19rem);
+  }
+
+  /* Each corner turns the cluster so the petals fan in towards the content. */
+  .petals--bottom-left {
+    bottom: calc(var(--petals-size) * -0.22);
+    left: calc(var(--petals-size) * -0.3);
+    rotate: 34deg;
+  }
+
+  .petals--bottom-right {
+    right: calc(var(--petals-size) * -0.3);
+    bottom: calc(var(--petals-size) * -0.22);
+    rotate: -34deg;
+  }
+
+  .petals--top-left {
+    top: calc(var(--petals-size) * -0.22);
+    left: calc(var(--petals-size) * -0.3);
+    rotate: 146deg;
+  }
+
+  .petals--top-right {
+    top: calc(var(--petals-size) * -0.22);
+    right: calc(var(--petals-size) * -0.3);
+    rotate: -146deg;
+  }
+
+  .petals__petal {
+    fill: var(--color-petal);
+    transform-box: view-box;
+    transform-origin: 50% 94%;
+  }
+
+  .petals__petal--left {
+    fill: var(--color-petal-deep);
+    opacity: 0.8;
+  }
+
+  .petals__petal--right {
     opacity: 0.75;
   }
 
-  .p1 {
-    top: 8%;
-    left: 6%;
-    transform: rotate(-24deg);
+  .petals__petal--center {
+    opacity: 0.9;
   }
 
-  .p2 {
-    top: 22%;
-    right: 10%;
-    width: 1rem;
-    fill: var(--color-orchid-400);
-    opacity: 0.35;
-    transform: rotate(38deg);
-  }
-
-  .p3 {
-    bottom: 14%;
-    left: 14%;
-    width: 1.8rem;
-    transform: rotate(62deg);
-  }
-
-  .p4 {
-    top: 58%;
-    right: 4%;
-    width: 2rem;
-    transform: rotate(-48deg);
-  }
-
-  .p5 {
-    top: 4%;
-    left: 52%;
-    width: 0.9rem;
-    fill: var(--color-orchid-400);
-    opacity: 0.3;
-    transform: rotate(12deg);
-  }
-
-  .p6 {
-    bottom: 6%;
-    right: 34%;
-    width: 1.1rem;
-    transform: rotate(-80deg);
-  }
-
+  /* Drift and sway slowly, each petal on its own clock. */
   @media (prefers-reduced-motion: no-preference) {
-    .petal {
-      animation: drift 9s ease-in-out infinite alternate;
+    .petals {
+      animation: petals-drift 18s ease-in-out infinite alternate;
     }
 
-    .p2,
-    .p5 {
-      animation-duration: 12s;
+    .petals--top-left,
+    .petals--bottom-right {
+      animation-duration: 15s;
     }
 
-    .p3,
-    .p6 {
-      animation-delay: -4s;
+    .petals__petal {
+      animation: petal-sway 12s ease-in-out infinite alternate;
+    }
+
+    .petals__petal--right {
+      animation-duration: 16s;
+      animation-delay: -6s;
+    }
+
+    .petals__petal--center {
+      animation-duration: 20s;
+      animation-delay: -11s;
     }
   }
 
-  @keyframes drift {
+  @keyframes petals-drift {
+    from {
+      translate: 0 0;
+    }
+
     to {
-      translate: 0.6rem 1.2rem;
-      rotate: 25deg;
+      translate: 0.6rem 0.9rem;
+    }
+  }
+
+  @keyframes petal-sway {
+    from {
+      rotate: -3deg;
+    }
+
+    to {
+      rotate: 4deg;
     }
   }
 </style>

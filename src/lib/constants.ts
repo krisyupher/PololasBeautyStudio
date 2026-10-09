@@ -21,8 +21,20 @@ export const ICON_NAMES = [
   'moon',
   'body',
   'leg',
+  // Icons drawn after the owner's catalog PDF (one per service row).
+  'molecule',
+  'waves',
+  'arrows-up',
+  'lashes',
+  'follicle',
+  'waist',
+  'firming',
 ] as const;
 export type IconName = (typeof ICON_NAMES)[number];
+
+/** Small badge icons for the catalog's value badges ("Profesionales expertos", …). */
+export const VALUE_ICONS = ['diamond', 'shield', 'heart', 'sparkles', 'users', 'chip'] as const;
+export type ValueIconName = (typeof VALUE_ICONS)[number];
 
 /** Limits keep the WhatsApp URL short and user input bounded. */
 export const LIMITS = {

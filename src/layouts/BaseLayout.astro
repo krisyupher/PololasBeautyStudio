@@ -35,7 +35,8 @@ const catalogJson = JSON.stringify(toCatalogEntries(await getServices())).replac
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#8e2a8e" />
     <meta name="format-detection" content="telephone=no" />
-    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="icon" type="image/png" sizes="48x48" href={withBase('/favicon-48.png')} />
+    <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
     <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
     <link rel="preload" href={montserratLatin} as="font" type="font/woff2" crossorigin />
     <Seo title={title} description={description} jsonLd={jsonLd} noindex={noindex} />

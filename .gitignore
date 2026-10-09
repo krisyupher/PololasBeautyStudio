@@ -25,3 +25,7 @@ Thumbs.db
 
 # local Claude Code settings
 .claude/settings.local.json
+
+# Owner's original design files (catalog PDF, logo masters). The site uses copies
+# prepared from them in src/assets/{brand,services,categories,highlights} and public/.
+src/assets/Pololas/

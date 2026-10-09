@@ -1,15 +1,16 @@
 /**
  * Single source of truth for business facts. Taken from the public Instagram
- * (@pololasbeautystudio) and Facebook pages. Update here, never inline in pages.
+ * (@pololasbeautystudio) and Facebook pages and the owner's printed catalog.
+ * Update here, never inline in pages.
  */
 export const business = {
   name: 'Pololas Beauty Studio',
   shortName: 'Pololas',
-  slogan: '¡Descubre tu mejor versión con nosotros!',
+  slogan: 'Tu bienestar en buenas manos',
   tagline: 'Naturalidad ante todo',
   bio: 'Belleza, cosmética y cuidado personal, servicios de spa.',
   description:
-    'Estudio de belleza y spa en Modelia, Bogotá: armonización facial, cuidado de la piel, masajes, tratamientos corporales y depilación. Atención en el estudio o a domicilio.',
+    'Estudio de belleza y bienestar en Modelia, Bogotá: estética facial, bienestar y cuidado personal, y estética corporal. Atención en el estudio y, en algunos servicios, a domicilio.',
   whatsapp: {
     /** E.164 without "+", as wa.me expects. */
     e164: '573202078089',
@@ -29,14 +30,14 @@ export const business = {
   // TODO(dueña): confirmar horario de atención.
   hoursNote: 'Atención con cita previa. Escríbenos para agendar.',
   homeServiceNote:
-    'Llevamos el spa a tu casa en Bogotá. Te confirmamos cobertura y costo del domicilio por WhatsApp.',
+    'Algunos de nuestros servicios los llevamos a tu casa en Bogotá. Te confirmamos la cobertura y el costo del domicilio por WhatsApp.',
   social: {
     instagram: 'https://www.instagram.com/pololasbeautystudio/',
     instagramHandle: '@pololasbeautystudio',
     facebook: 'https://www.facebook.com/profile.php?id=61552028553001',
   },
-  /** Path under public/ for social previews (1200×630 JPG). Null until the owner provides one. */
-  ogImage: null as string | null,
+  /** Path under public/ for social previews (1200×630 JPG, cropped from the catalog cover). */
+  ogImage: '/og-image.jpg' as string | null,
 } as const;
 
 export type Business = typeof business;

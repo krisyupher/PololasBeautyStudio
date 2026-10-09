@@ -1,19 +1,32 @@
 /*
- * Brand tokens, sampled by eye from the logo and the Instagram posts.
- * Replace the hex values with exact ones once the original logo files are available.
+ * Brand tokens, sampled from the owner's printed catalog ("Catálogo Pololas", 5 pages).
+ *
+ * Contrast (WCAG 2.2 AA):
+ * - --color-accent-bright (#ff2489) is 3.6:1 on white: use it only for large display text
+ *   (24px or more, or 18.7px bold), hearts, rules and decoration.
+ * - Small pink text uses --color-accent (#c2006b, 6:1 on white).
+ * - White text passes on every stop of --gradient-brand and --gradient-wave (5.3:1 or more).
+ *   Never put small white text on the hot pink or on the light wave band.
  */
 :root {
   /* Palette */
-  --color-plum-900: #4a1450;
-  --color-purple-700: #8e2a8e;
-  --color-magenta-600: #a8329f;
-  --color-orchid-400: #c77dcb;
-  --color-lilac-200: #efcdf1;
-  --color-lilac-100: #f6e4f7;
-  --color-blush-50: #fbf3fb;
+  --color-purple-950: #4a004a;
+  --color-purple-900: #640064;
+  --color-magenta-700: #a3007e;
+  --color-pink-700: #c2006b;
+  --color-pink-500: #ff2489;
+  --color-heart: #ff0c8a;
+  --color-wave-magenta: #9d1083;
+  --color-wave-pink: #c51a92;
+  --color-pink-200: #ffc3e4;
+  --color-pink-100: #fdddf0;
+  --color-lilac-300: #ebc6e5;
+  --color-lilac-200: #f3d5ed;
+  --color-lilac-100: #f9eaf5;
+  --color-blush-50: #fff6fb;
   --color-white: #ffffff;
-  --color-gray-600: #6b6b70;
-  --color-gray-800: #3a3540;
+  --color-plum-800: #43254a;
+  --color-plum-600: #6d5272;
   /* WhatsApp green darkened so white text/icons pass WCAG AA (5.4:1). */
   --color-whatsapp: #0f7a43;
   --color-whatsapp-strong: #0b6236;
@@ -22,26 +35,69 @@
   --color-bg: var(--color-white);
   --color-bg-soft: var(--color-blush-50);
   --color-surface: var(--color-white);
-  --color-text: var(--color-gray-800);
-  --color-text-muted: var(--color-gray-600);
-  --color-heading: var(--color-plum-900);
-  --color-primary: var(--color-purple-700);
-  --color-primary-strong: var(--color-plum-900);
-  --color-accent: var(--color-magenta-600);
-  --color-border: #ead5ec;
-  --color-focus: var(--color-magenta-600);
+  --color-surface-glass: rgb(255 255 255 / 0.82);
+  --color-text: var(--color-plum-800);
+  --color-text-muted: var(--color-plum-600);
+  --color-heading: var(--color-purple-900);
+  --color-primary: var(--color-purple-900);
+  --color-primary-strong: var(--color-purple-950);
+  /* Small pink text (eyebrows, links on hover, the order count badge). */
+  --color-accent: var(--color-pink-700);
+  /* Hot pink: large display text, swooshes, rules and decoration only. */
+  --color-accent-bright: var(--color-pink-500);
+  --color-heart-line: var(--color-heart);
+  --color-icon-bg: var(--color-pink-100);
+  --color-wave-light: var(--color-pink-200);
+  --color-petal: var(--color-lilac-200);
+  --color-petal-deep: var(--color-lilac-300);
+  --color-border: #f3d3e6;
+  --color-rule: rgb(255 36 137 / 0.55);
+  --color-focus: var(--color-pink-700);
 
-  --gradient-brand: linear-gradient(135deg, var(--color-purple-700), var(--color-magenta-600));
+  --gradient-brand: linear-gradient(
+    120deg,
+    var(--color-purple-900) 0%,
+    var(--color-magenta-700) 55%,
+    var(--color-pink-700) 100%
+  );
+  /* Twice as wide as the button; translating it "shifts" the gradient on hover. */
+  --gradient-brand-shift: linear-gradient(
+    110deg,
+    var(--color-purple-900) 0%,
+    var(--color-magenta-700) 28%,
+    var(--color-pink-700) 50%,
+    var(--color-magenta-700) 72%,
+    var(--color-purple-900) 100%
+  );
+  --gradient-wave: linear-gradient(
+    90deg,
+    var(--color-purple-900) 0%,
+    var(--color-wave-magenta) 55%,
+    var(--color-wave-pink) 100%
+  );
+  --gradient-wave-reverse: linear-gradient(
+    270deg,
+    var(--color-purple-900) 0%,
+    var(--color-wave-magenta) 55%,
+    var(--color-wave-pink) 100%
+  );
   --gradient-soft: linear-gradient(
-    160deg,
-    var(--color-blush-50) 0%,
-    var(--color-lilac-100) 55%,
-    var(--color-lilac-200) 100%
+    180deg,
+    var(--color-white) 0%,
+    var(--color-blush-50) 55%,
+    var(--color-lilac-100) 100%
+  );
+  --gradient-icon: radial-gradient(
+    circle at 32% 28%,
+    #fff4fa 0%,
+    var(--color-pink-100) 55%,
+    #f8c9e6 100%
   );
 
-  /* Typography: Montserrat for text and bold uppercase headings, Great Vibes for script accents */
+  /* Typography: Montserrat for text and bold uppercase headlines, Ms Madi for script accents */
   --font-sans: 'Montserrat Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-script: 'Great Vibes', 'Brush Script MT', cursive;
+  --font-script: 'Ms Madi', 'Brush Script MT', cursive;
+  --text-2xs: 0.75rem;
   --text-xs: 0.8125rem;
   --text-sm: 0.9375rem;
   --text-base: 1rem;
@@ -49,9 +105,18 @@
   --text-xl: 1.375rem;
   --text-2xl: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);
   --text-3xl: clamp(2rem, 1.3rem + 2.8vw, 3.25rem);
-  --text-script: clamp(2.4rem, 1.6rem + 3.4vw, 4rem);
+  /* Two-tone headlines (always 24px or more, so the hot pink line counts as large text). */
+  --text-display-sm: clamp(1.6rem, 1.35rem + 1vw, 2rem);
+  --text-display-md: clamp(1.9rem, 1.4rem + 2vw, 2.75rem);
+  --text-display-lg: clamp(2.3rem, 1.45rem + 3.4vw, 4rem);
+  --text-display-xl: clamp(2.6rem, 1.3rem + 5vw, 4.75rem);
+  /* Ms Madi has a small x-height: keep script text at 2.25rem or more. */
+  --text-script: clamp(2.4rem, 1.8rem + 2.4vw, 3.5rem);
+  --text-script-lg: clamp(2.6rem, 1.9rem + 2.8vw, 4rem);
+  --leading-display: 0.95;
   --leading-tight: 1.15;
   --leading-normal: 1.6;
+  --tracking-spaced: 0.3em;
 
   /* Spacing scale */
   --space-1: 0.25rem;
@@ -65,24 +130,29 @@
   --space-12: 3rem;
   --space-16: 4rem;
   --space-20: 5rem;
+  --space-section: clamp(3.5rem, 2.25rem + 5vw, 6rem);
 
-  /* Shape and depth */
+  /* Shape and depth (soft plum shadows, as in the catalog panels) */
   --radius-sm: 0.5rem;
   --radius-md: 1rem;
   --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
   --radius-pill: 999px;
-  --shadow-sm: 0 1px 3px rgb(74 20 80 / 0.08);
-  --shadow-md: 0 10px 28px rgb(74 20 80 / 0.12);
-  --shadow-lg: 0 20px 50px rgb(74 20 80 / 0.18);
+  --shadow-sm: 0 1px 3px rgb(100 0 100 / 0.08);
+  --shadow-md: 0 14px 34px -14px rgb(100 0 100 / 0.24);
+  --shadow-lg: 0 26px 60px -18px rgb(100 0 100 / 0.32);
+  --shadow-pink: 0 10px 26px -10px rgb(255 36 137 / 0.45);
 
   /* Layout */
   --container: 72rem;
   --gutter: 1rem;
-  --header-h: 4.25rem;
+  --header-h: 4.5rem;
   --mobile-bar-h: 4.5rem;
   --tap-min: 2.75rem;
 
+  /* Motion: calm, 0.6–1.2 s */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-reveal: 0.9s;
 }
 
 @media (min-width: 48rem) {

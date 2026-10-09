@@ -1,42 +1,56 @@
 [
   {
-    "id": "armonizacion-facial",
-    "name": "Armonización facial",
-    "shortName": "Armonización",
-    "description": "Procedimientos inyectables para resaltar tu rostro con naturalidad, siempre con valoración previa.",
+    "id": "estetica-facial",
+    "name": "Estética facial",
+    "shortName": "Facial",
+    "titleLines": ["Estética", "Facial"],
+    "description": "Realza tu belleza, potencia tu confianza. Siempre con valoración médica previa.",
+    "script": "Armonía en cada detalle",
+    "note": "Tratamientos personalizados para realzar tu belleza de manera armoniosa.",
+    "values": [
+      { "icon": "diamond", "label": "Profesionales de la salud" },
+      { "icon": "shield", "label": "Valoración médica previa" },
+      { "icon": "heart", "label": "Atención personalizada" },
+      { "icon": "sparkles", "label": "Buscamos resultados naturales" }
+    ],
+    "closing": "Tu confianza también se refleja aquí",
     "icon": "face",
     "order": 1
   },
   {
-    "id": "cuidado-facial",
-    "name": "Cuidado facial",
-    "shortName": "Facial",
-    "description": "Tratamientos para una piel luminosa, uniforme y saludable.",
-    "icon": "sparkle",
+    "id": "bienestar",
+    "name": "Bienestar y cuidado personal",
+    "shortName": "Bienestar",
+    "titleLines": ["Bienestar y", "Cuidado personal"],
+    "description": "Regálate un momento para ti.",
+    "script": "Cuerpo, mente y belleza en armonía",
+    "note": "Desconecta, relájate, renuévate, siéntete bien.",
+    "values": [
+      { "icon": "users", "label": "Profesionales capacitados" },
+      { "icon": "shield", "label": "Espacio tranquilo y confortable" },
+      { "icon": "heart", "label": "Atención personalizada" },
+      { "icon": "sparkles", "label": "Cuidado a tu medida" }
+    ],
+    "closing": "Tu mejor versión también se cuida aquí",
+    "icon": "lotus",
     "order": 2
   },
   {
-    "id": "spa-masajes",
-    "name": "Spa y masajes",
-    "shortName": "Spa",
-    "description": "Masajes y rituales para desconectarte, respirar y dejarte cuidar.",
-    "icon": "lotus",
-    "order": 3
-  },
-  {
-    "id": "corporal",
-    "name": "Corporal y moldeo",
+    "id": "estetica-corporal",
+    "name": "Estética corporal",
     "shortName": "Corporal",
-    "description": "Masajes y paquetes para moldear, tonificar y reafirmar tu figura.",
+    "titleLines": ["Estética", "Corporal"],
+    "description": "Cuida tu cuerpo con tecnología, bienestar y confianza.",
+    "script": "Tu cuerpo también merece cuidado",
+    "note": "Armoniza, tonifica, reafirma, siéntete bien.",
+    "values": [
+      { "icon": "chip", "label": "Tecnología especializada" },
+      { "icon": "shield", "label": "Valoración previa" },
+      { "icon": "heart", "label": "Atención personalizada" },
+      { "icon": "sparkles", "label": "Acompañamos tus objetivos" }
+    ],
+    "closing": "Siéntete bien en tu propia piel",
     "icon": "body",
-    "order": 4
-  },
-  {
-    "id": "depilacion",
-    "name": "Depilación",
-    "shortName": "Depilación",
-    "description": "Piel suave y exfoliada, por zonas o completa.",
-    "icon": "leg",
-    "order": 5
+    "order": 3
   }
 ]

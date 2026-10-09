@@ -29,24 +29,30 @@ const whatsappUrl = buildWhatsAppUrl(buildInquiryMessage(Astro.props.topic));
     place-items: center;
     width: 3.75rem;
     height: 3.75rem;
+    border: 3px solid var(--color-white);
     border-radius: 50%;
     background: var(--color-whatsapp);
     color: var(--color-white);
     box-shadow: var(--shadow-lg);
     transition:
-      transform 0.2s var(--ease-out),
+      transform 0.25s var(--ease-out),
       background-color 0.2s ease;
   }
 
   .fab:hover {
     background: var(--color-whatsapp-strong);
     color: var(--color-white);
-    transform: scale(1.06);
   }
 
   .fab :global(svg) {
     width: 1.9rem;
     height: 1.9rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fab:hover {
+      transform: scale(1.06);
+    }
   }
 
   @media (min-width: 48rem) {

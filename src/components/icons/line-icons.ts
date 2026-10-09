@@ -1,8 +1,8 @@
 import type { IconName } from '../../lib/constants';
 
 /**
- * Thin line-art icons (64×64, stroked with currentColor) in the style of the
- * Instagram highlight covers: Botox, Labios, Rino, Bioestimulador…
+ * Thin line-art icons (64×64, stroked with currentColor) in the style of the owner's
+ * catalog and Instagram highlight covers. Shown inside pink icon circles (IconCircle).
  */
 export const LINE_ICONS: Record<IconName, readonly string[]> = {
   face: [
@@ -42,11 +42,12 @@ export const LINE_ICONS: Record<IconName, readonly string[]> = {
     'M48 38c.8 4.6 2.2 6.4 6.8 7.2-4.6.8-6 2.6-6.8 7.2-.8-4.6-2.2-6.4-6.8-7.2 4.6-.8 6-2.6 6.8-7.2z',
     'M16 44v6M13 47h6',
   ],
+  // Laminado: a full brow over a closed eye (the catalog's "Laminado de cejas y pestañas").
   eye: [
-    'M14 22c5.4-4 11.4-6 18-6s12.6 2 18 6',
-    'M12 31c5.6 6.4 12.4 9.6 20 9.6S46.4 37.4 52 31',
-    'M19 37.2l-2.6 4M25.4 39.8l-1.2 4.6M32 40.6v4.8M38.6 39.8l1.2 4.6M45 37.2l2.6 4',
-    'M20 49c3.8 2 7.8 3 12 3s8.2-1 12-3',
+    'M12.5 25c8.4-6.6 18.6-9.2 28.8-7.4 4.4.8 8.2 2.4 11.2 4.8-4.6-1.3-9.2-1.8-13.8-1.6-8.8.3-17.6 1.9-26.2 4.2z',
+    'M19.5 33.4c3.8-2 8-3 12.5-3s8.7 1 12.5 3',
+    'M16.5 40c4.6 3.6 9.6 5.4 15.5 5.4s10.9-1.8 15.5-5.4',
+    'M44.2 43.2l2.4 3.2M40 44.8l1.2 3.6M47.4 40.6l3.2 2',
   ],
   lift: [
     'M32 9c-9 0-15 7.8-15 18.6C17 39.4 24 50 32 50s15-10.6 15-22.4C47 16.8 41 9 32 9z',
@@ -54,11 +55,13 @@ export const LINE_ICONS: Record<IconName, readonly string[]> = {
     'M40.5 41c-.8-5.6-2.6-9.6-5.6-12.6m0 0h4.6m-4.6 0v4.6',
     'M26 49.5V56M38 49.5V56',
   ],
+  // Five open petals from one base, as on the catalog cover ("Belleza que te inspira").
   lotus: [
-    'M32 47c-6.2-6.2-8.2-15.4 0-26 8.2 10.6 6.2 19.8 0 26z',
-    'M32 47c-8.6-.8-15.6-7-17.6-16.4 7.6.2 13.6 4.4 17.6 10.6',
-    'M32 47c8.6-.8 15.6-7 17.6-16.4-7.6.2-13.6 4.4-17.6 10.6',
-    'M12 52c6.4-2.4 13-3.6 20-3.6s13.6 1.2 20 3.6',
+    'M32 49C40.2 36.59 36.26 21.26 32 12.5 27.74 21.26 23.8 36.59 32 49Z',
+    'M32 49C31.99 36.5 21.93 26.59 15.5 22.5 16.33 30.07 20.79 43.48 32 49Z',
+    'M32 49C43.21 43.48 47.67 30.07 48.5 22.5 42.07 26.59 32.01 36.5 32 49Z',
+    'M32 49C24.55 39.56 11.42 37.1 5 37 9.38 41.7 20.01 49.8 32 49Z',
+    'M32 49C43.99 49.8 54.62 41.7 59 37 52.58 37.1 39.45 39.56 32 49Z',
   ],
   stones: [
     'M16 48a16 5 0 1 0 32 0a16 5 0 1 0-32 0z',
@@ -91,5 +94,53 @@ export const LINE_ICONS: Record<IconName, readonly string[]> = {
     'M27 6c.8 9.8.2 17.6.9 25.4.8 7.4 3.1 12.3 3.1 18.4v3.4c0 1.4 1 2.4 2.4 2.4h12.2c1.3 0 1.6-1.6.4-2.2l-7.2-3.4c-.9-6.2-.9-12.6 0-19.6.9-7.6 2.6-15.4 2-24.4',
     'M31.6 31.6c1.6-.8 3.4-.8 5 0',
     'M48 14v6M45 17h6',
+  ],
+  // Drawn after the icons in the owner's catalog PDF (one per service row).
+  // Bioestimuladores: three hexagons, one with a dot.
+  molecule: [
+    'M25.2 35l-5 8.66h-10l-5-8.66 5-8.66h10z',
+    'M41.5 25.6l-5 8.66h-10l-5-8.66 5-8.66h10z',
+    'M58.8 38.5l-5 8.66h-10l-5-8.66 5-8.66h10z',
+    'M31.6 23.6a1.8 1.8 0 1 0 3.6 0 1.8 1.8 0 1 0-3.6 0',
+  ],
+  // Hilos de colágeno: three calm waves.
+  waves: [
+    'M11 22.5c4.6-3.8 9.4-3.8 14 0s9.4 3.8 14 0 9.4-3.8 14 0',
+    'M11 32c4.6-3.8 9.4-3.8 14 0s9.4 3.8 14 0 9.4-3.8 14 0',
+    'M11 41.5c4.6-3.8 9.4-3.8 14 0s9.4 3.8 14 0 9.4-3.8 14 0',
+  ],
+  // Hilos tensores: three arrows up, the middle one taller.
+  'arrows-up': [
+    'M19 47V25m-5.5 5.5L19 25l5.5 5.5',
+    'M32 51V13m-5.5 5.5L32 13l5.5 5.5',
+    'M45 47V25m-5.5 5.5L45 25l5.5 5.5',
+  ],
+  // Pestañas: brow, crease and a closed eye with long lashes.
+  lashes: [
+    'M15 20.5c7.6-4.6 15.8-6.4 24.6-5.4 4.4.5 8.4 1.8 12 3.8',
+    'M21 27.5c7-3.4 14.6-4 22.4-1.8',
+    'M13 37.5c6.2 4.4 12.8 6.6 19.6 6.6 6.6 0 12.8-2 18.4-6',
+    'M20 41.6l-2.6 5.2M25.6 43.4l-1.6 5.6M31.4 44.1l-.4 5.8M37.2 43.6l.8 5.6M42.8 41.8l2.2 5.2M47.8 39l3.2 4.4',
+  ],
+  // Láser de diodo: one hair growing from its follicle under the skin line.
+  follicle: [
+    'M8 40h13c2.6 0 4 1.5 4.4 4l.4 2.6c.6 3.4 3 5.6 6.2 5.6s5.6-2.2 6.2-5.6l.4-2.6c.4-2.5 1.8-4 4.4-4H56',
+    'M32 41.5c-2 2.4-3 4.4-3 6a3 3 0 0 0 6 0c0-1.6-1-3.6-3-6z',
+    'M32 41.5c-.6-5.8-.4-11.2 1.4-16.6 1.4-4.4 1.8-8.6.4-13.4',
+  ],
+  // Tratamientos reductores: a waist with arrows pointing in.
+  waist: [
+    'M22 8c1 7 3.4 12 3.4 18S22 36 22 44c0 5 1.2 9 2 12',
+    'M42 8c-1 7-3.4 12-3.4 18S42 36 42 44c0 5-1.2 9-2 12',
+    'M8 28h10m-3.5-3.5L18 28l-3.5 3.5',
+    'M56 28H46m3.5-3.5L46 28l3.5 3.5',
+  ],
+  // Tratamientos reafirmantes: hips with three arrows up.
+  firming: [
+    'M26 8c-1.6 8.6-6.8 15-7.8 23.4-.8 7.4 1.6 13.6 5.4 19.6 1.4 2.2 2.2 4.6 2.6 7',
+    'M38 8c1.6 8.6 6.8 15 7.8 23.4.8 7.4-1.6 13.6-5.4 19.6-1.4 2.2-2.2 4.6-2.6 7',
+    'M9.5 47V33m-4 4 4-4 4 4',
+    'M54.5 47V33m-4 4 4-4 4 4',
+    'M32 56V39m-4.5 4.5L32 39l4.5 4.5',
   ],
 };

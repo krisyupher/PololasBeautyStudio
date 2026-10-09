@@ -1,0 +1,213 @@
+---
+import Heart from './Heart.astro';
+import { balanceLines } from '../lib/text';
+
+/**
+ * The catalog's handwritten accent: script text in staggered lines, an outline heart after the
+ * last word and a pink swoosh underneath ("Armonía / en cada / detalle ♡").
+ */
+interface Props {
+  text: string;
+  /** Lines the phrase is set in, balanced by length as in the printed catalog. */
+  lines?: number;
+  as?: 'p' | 'div';
+  size?: 'md' | 'lg';
+  /** "load": writes itself on page load (the hero). "scroll": as it scrolls into view. */
+  animate?: 'load' | 'scroll' | 'none';
+  class?: string;
+}
+
+const {
+  text,
+  lines = 3,
+  as: Tag = 'p',
+  size = 'md',
+  animate = 'scroll',
+  class: className,
+} = Astro.props;
+const parts = balanceLines(text, lines);
+const last = parts.length - 1;
+---
+
+<Tag
+  class:list={[
+    'script-accent',
+    `script-accent--${size}`,
+    animate !== 'none' && `script-accent--${animate}`,
+    className,
+  ]}
+>
+  <span class="script-accent__inner">
+    {
+      parts.map((line, index) => (
+        <Fragment>
+          {index > 0 && ' '}
+          <span class="script-accent__line">
+            {line}
+            {index === last && <Heart class="script-accent__heart" />}
+          </span>
+        </Fragment>
+      ))
+    }
+    <svg
+      class="script-accent__swoosh"
+      viewBox="0 0 320 40"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <!-- One brush stroke: a thin full curve plus two thicker layers along its middle. -->
+      <path
+        class="script-accent__stroke script-accent__stroke--1"
+        d="M6 33C86 21 196 9 314 10"
+        stroke-width="2"
+        pathLength="1"></path>
+      <path
+        class="script-accent__stroke script-accent__stroke--2"
+        d="M85.51 22.55C139.28 16.49 200.39 11.64 264.97 10.31"
+        stroke-width="3.4"
+        pathLength="1"></path>
+      <path
+        class="script-accent__stroke script-accent__stroke--3"
+        d="M130.22 17.98C159.96 15.27 191.39 13.04 223.97 11.63"
+        stroke-width="4.6"
+        pathLength="1"></path>
+    </svg>
+  </span>
+</Tag>
+
+<style>
+  .script-accent {
+    color: var(--color-heading);
+    font-family: var(--font-script);
+    font-size: var(--text-script);
+    font-weight: 400;
+    line-height: 1.02;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .script-accent--lg {
+    font-size: var(--text-script-lg);
+  }
+
+  .script-accent__inner {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 0.45em;
+  }
+
+  .script-accent__line {
+    display: block;
+    width: fit-content;
+  }
+
+  /* Staggered like the printed catalog: each line starts a little further in. */
+  .script-accent__line:nth-child(2) {
+    margin-left: 0.45em;
+  }
+
+  .script-accent__line:nth-child(3) {
+    margin-left: 1.4em;
+  }
+
+  .script-accent :global(.script-accent__heart) {
+    display: inline-block;
+    width: 0.62em;
+    height: auto;
+    margin-left: 0.14em;
+    vertical-align: -0.04em;
+    rotate: -8deg;
+  }
+
+  .script-accent__swoosh {
+    position: absolute;
+    left: -0.4em;
+    bottom: -0.1em;
+    width: calc(100% + 0.8em);
+    height: auto;
+    aspect-ratio: 8 / 1;
+    color: var(--color-accent-bright);
+    overflow: visible;
+  }
+
+  .script-accent__stroke--1 {
+    opacity: 0.7;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Hero: lines are written one after another, then the swoosh, then the heart. */
+    .script-accent--load .script-accent__line {
+      animation: wipe-in 0.8s var(--ease-out) 0.45s backwards;
+    }
+
+    .script-accent--load .script-accent__line:nth-child(2) {
+      animation-delay: 0.8s;
+    }
+
+    .script-accent--load .script-accent__line:nth-child(3) {
+      animation-delay: 1.15s;
+    }
+
+    .script-accent--load .script-accent__stroke {
+      stroke-dasharray: 1;
+      animation: draw-in 0.9s var(--ease-out) 1.45s backwards;
+    }
+
+    .script-accent--load .script-accent__stroke--2 {
+      animation-delay: 1.6s;
+    }
+
+    .script-accent--load .script-accent__stroke--3 {
+      animation-delay: 1.75s;
+    }
+
+    /* The heart pops in, then beats twice and rests, slowly. */
+    .script-accent--load :global(.script-accent__heart) {
+      animation:
+        pop-in 0.7s var(--ease-out) 1.7s backwards,
+        heartbeat 3.2s ease-in-out 2.8s infinite;
+    }
+
+    @supports (animation-timeline: view()) {
+      .script-accent--scroll {
+        view-timeline-name: --script-accent;
+      }
+
+      .script-accent--scroll .script-accent__line,
+      .script-accent--scroll .script-accent__stroke,
+      .script-accent--scroll :global(.script-accent__heart) {
+        animation-duration: auto;
+        animation-timing-function: var(--ease-out);
+        animation-fill-mode: both;
+        animation-timeline: --script-accent;
+      }
+
+      .script-accent--scroll .script-accent__line {
+        animation-name: wipe-in;
+        animation-range: cover 4% cover 22%;
+      }
+
+      .script-accent--scroll .script-accent__line:nth-child(2) {
+        animation-range: cover 10% cover 28%;
+      }
+
+      .script-accent--scroll .script-accent__line:nth-child(3) {
+        animation-range: cover 16% cover 34%;
+      }
+
+      .script-accent--scroll .script-accent__stroke {
+        stroke-dasharray: 1;
+        animation-name: draw-in;
+        animation-range: cover 24% cover 42%;
+      }
+
+      .script-accent--scroll :global(.script-accent__heart) {
+        animation-name: pop-in;
+        animation-range: cover 30% cover 44%;
+      }
+    }
+  }
+</style>
