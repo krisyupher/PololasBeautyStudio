@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Catalog website for **Pololas Beauty Studio**, a beauty, aesthetics and spa studio in Modelia, Bogotá (Instagram @pololasbeautystudio and a Facebook page). The design, treatment list and copy follow the owner's printed catalog, `src/assets/Pololas/Catalogo Pololas.pdf`; that folder holds the owner's original design files and is gitignored, so the site uses copies prepared from it (see **Images**). Visitors browse treatments, collect them in "Mi pedido" and send the order as a prefilled WhatsApp message; an advisor confirms price, availability and logistics, at the studio or at the client's home. There is no backend, no prices are shown, and no personal data is stored.
 
-Stack: Astro 7 (static output) + strict TypeScript, vanilla TypeScript client scripts, scoped CSS with design tokens. Deployed on Vercel at `https://pololas-beauty-studio.vercel.app/` (Git integration, served from the root). `.github/workflows/ci.yml` only runs lint, type checks and tests; it does not deploy. The `Dockerfile` packages the site as an unprivileged nginx image (port 8080) served from the domain root.
+Stack: Astro 7 (static output) + strict TypeScript, vanilla TypeScript client scripts, scoped CSS with design tokens. Deployed on Vercel at `https://www.pololasbeautystudio.com/` (custom domain; also `pololas-beauty-studio.vercel.app`), through the Git integration, served from the root. Vercel Speed Insights is rendered only in Vercel builds (`process.env.VERCEL` in `BaseLayout.astro`); it is same-origin (`/_vercel/speed-insights/*`), so the CSP needs no change, and the privacy page mentions it. `.github/workflows/ci.yml` only runs lint, type checks and tests; it does not deploy. The `Dockerfile` packages the site as an unprivileged nginx image (port 8080) served from the domain root.
 
 ## Commands
 
@@ -26,7 +26,10 @@ docker build -t pololas-beauty-studio .                          # image (SITE b
 docker run --rm -p 8080:8080 pololas-beauty-studio               # http://localhost:8080/
 ```
 
-Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `playwright.config.ts`); CI installs Chromium. The e2e tests assume the default base path (`/PololasBeautyStudio/`), so don't run them with `SITE`/`BASE_PATH` set.
+Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `playwright.config.ts`); CI installs Chromium. The e2e tests assume the default base path (`/PololasBeautyStudio/`), so don't run them with `SITE`/`BASE_PATH` set. Playwright reuses a server already listening on :4321, and Astro allows one preview server per project, so stop stray ones (`npx astro preview stop`) before `test:e2e` or it may test a stale `dist/`.
+
+- **Reproduce the Vercel production build locally:** `VERCEL=1 VERCEL_ENV=production npm run build`. In Git Bash prefix it with `MSYS_NO_PATHCONV=1`, otherwise `/` is rewritten to `C:/Program Files/Git/` and every link breaks.
+- **Docker shows an old version:** the image is a snapshot of the working directory (not of git) at `docker build` time, so rebuild it after changes. Vercel rebuilds on every push to `main`.
 
 ## Architecture
 
@@ -46,7 +49,7 @@ Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `pla
 
 ## Conventions and constraints
 
-- **Base path and site URL** come from the `SITE` and `BASE_PATH` environment variables; on Vercel (`VERCEL` set) they default to `https://$VERCEL_PROJECT_PRODUCTION_URL` and `/`; otherwise (local dev, CI, tests) to the site's original GitHub Pages address under `/PololasBeautyStudio/`. Nothing is deployed there any more; the sub-path is kept so the tests fail on links that skip `withBase()`. The Dockerfile builds with `BASE_PATH=/`. `trailingSlash` is `'always'`. Never hardcode the base or the site: build every internal URL with `withBase()`, `serviceUrl()` or `catalogUrl()`, and absolute URLs from `import.meta.env.SITE` (as `schema.ts` and the `robots.txt.ts` endpoint do). In Playwright, navigate with relative paths (`page.goto('catalogo/')`). A build with the wrong base renders unstyled with 404s for every asset (this broke the first Vercel deploy), so check `dist/index.html` links when touching this.
+- **Base path and site URL** come from the `SITE` and `BASE_PATH` environment variables; on Vercel (`VERCEL` set) they default to `PRODUCTION_SITE` in `astro.config.mjs` (`https://www.pololasbeautystudio.com`) for production builds, the deployment's own URL for previews, and `/`; otherwise (local dev, CI, tests) to the site's original GitHub Pages address under `/PololasBeautyStudio/`. Nothing is deployed there any more; the sub-path is kept so the tests fail on links that skip `withBase()`. The Dockerfile builds with `BASE_PATH=/` and `SITE` defaulting to the production domain. `trailingSlash` is `'always'`. Never hardcode the base or the site: build every internal URL with `withBase()`, `serviceUrl()` or `catalogUrl()`, and absolute URLs from `import.meta.env.SITE` (as `schema.ts` and the `robots.txt.ts` endpoint do). In Playwright, navigate with relative paths (`page.goto('catalogo/')`). A build with the wrong base renders unstyled with 404s for every asset (this broke the first Vercel deploy), so check `dist/index.html` links when touching this.
 - **Hosting headers:** `vercel.json` adds trailing-slash redirects and the same security headers as `docker/security-headers.conf`; keep the two in sync.
 - **Docker serving:** `docker/nginx.conf` serves `dist/` from `/srv/www` with the custom 404, `no-cache` for pages and immutable caching for `/_astro/`. Security headers live in `docker/security-headers.conf` and must be re-included in every `location` that sets its own `add_header`, because nginx drops inherited headers there.
 - **CSP:** `security.csp` in `astro.config.mjs` emits a hashed meta CSP (`default-src 'self'`, `form-action 'none'`). Don't add inline `style=""` attributes, inline event handlers, `define:vars`, third-party scripts/fonts/iframes or `data:` assets; `vite.build.assetsInlineLimit` is 0 so small font files are never inlined. Write dynamic text with `textContent`. JSON placed inside `<script>` must escape `<`.
@@ -58,7 +61,7 @@ Locally Playwright uses the installed Google Chrome (`channel: 'chrome'` in `pla
 
 ## Agents
 
-Project subagents live in `.claude/agents/`: `frontend-expert`, `ux-ui-designer`, `business-strategist`, `marketing-specialist`, `qa-test-engineer`, `security-reviewer`, `seo-local-specialist`, `health-compliance-advisor` and `catalog-manager`.
+Project subagents live in `.claude/agents/`: `frontend-expert`, `ux-ui-designer`, `business-strategist`, `marketing-specialist`, `qa-test-engineer`, `security-reviewer`, `seo-local-specialist`, `health-compliance-advisor` and `catalog-manager`. `.claude/skills/` (mirrored in `.agents/skills/`) holds third-party reference skills (astro, vitest, playwright-best-practices, accessibility, seo, …) installed per `skills-lock.json`; they are not part of the site.
 
 ## Pending owner input
 

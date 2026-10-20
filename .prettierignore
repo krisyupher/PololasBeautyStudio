@@ -4,3 +4,7 @@ node_modules/
 playwright-report/
 test-results/
 package-lock.json
+
+# Third-party agent skills (vendored, not site code).
+.agents/
+.claude/skills/

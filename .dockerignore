@@ -5,6 +5,10 @@ dist
 .git
 .github
 .claude
+.agents
+.codex
+skills-lock.json
+AGENTS.md
 .vscode
 .idea
 tests

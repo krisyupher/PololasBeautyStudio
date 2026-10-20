@@ -2,17 +2,23 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
+/** The public address of the site; canonical links, the sitemap and JSON-LD point here. */
+const PRODUCTION_SITE = 'https://www.pololasbeautystudio.com';
+
 // Where the site is served from (absolute URLs, and the prefix of every internal link):
 // 1. SITE and BASE_PATH env vars win (the Dockerfile sets them).
-// 2. On Vercel: the production domain, at the root. Vercel exposes VERCEL and
-//    VERCEL_PROJECT_PRODUCTION_URL to builds ("system environment variables", on by default).
+// 2. On Vercel, at the root: production builds use PRODUCTION_SITE; preview builds use their
+//    own deployment URL. Vercel exposes VERCEL, VERCEL_ENV and VERCEL_BRANCH_URL / VERCEL_URL
+//    to builds ("system environment variables", on by default).
 // 3. Otherwise (local dev, CI, tests): the site's original GitHub Pages address, no longer
 //    deployed. Its /PololasBeautyStudio/ sub-path makes the tests catch links that skip withBase().
 const onVercel = Boolean(process.env.VERCEL);
-const vercelHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
-const site =
-  process.env.SITE ||
-  (onVercel && vercelHost ? `https://${vercelHost}` : 'https://krisyupher.github.io');
+const previewHost = process.env.VERCEL_BRANCH_URL || process.env.VERCEL_URL;
+const vercelSite =
+  process.env.VERCEL_ENV === 'production' || !previewHost
+    ? PRODUCTION_SITE
+    : `https://${previewHost}`;
+const site = process.env.SITE || (onVercel ? vercelSite : 'https://krisyupher.github.io');
 const base = process.env.BASE_PATH || (onVercel ? '/' : '/PololasBeautyStudio');
 
 export default defineConfig({

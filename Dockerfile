@@ -2,7 +2,7 @@
 
 # ---------- Build: static Astro site ----------
 # Debian-based (glibc) image: matches the Linux binaries in package-lock.json (Rolldown, sharp).
-FROM node:25-slim AS build
+FROM node:24-slim AS build
 WORKDIR /app
 
 ENV ASTRO_TELEMETRY_DISABLED=1 \
@@ -17,8 +17,8 @@ RUN npm ci
 COPY . .
 
 # Public URL used for canonical links, the sitemap, robots.txt and structured data.
-# Set it when building for a real domain: docker build --build-arg SITE=https://example.com .
-ARG SITE=http://localhost:8080
+# Defaults to the production domain; override for another host: --build-arg SITE=https://example.com
+ARG SITE=https://www.pololasbeautystudio.com
 # The container serves the site from the domain root.
 ENV SITE=${SITE} \
     BASE_PATH=/

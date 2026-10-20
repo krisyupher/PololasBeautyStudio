@@ -4,7 +4,7 @@ Website and treatment catalog for **Pololas Beauty Studio**, a beauty, aesthetic
 
 Visitors browse the treatments, add them to **"Mi pedido"**, choose whether they want them at the studio or at home, and send the order as a prefilled WhatsApp message. An advisor then confirms price, availability and details. There is no backend, no prices are shown, and no personal data is stored.
 
-**Live site:** https://pololas-beauty-studio.vercel.app/
+**Live site:** https://www.pololasbeautystudio.com/
 
 ## Development
 
@@ -51,7 +51,13 @@ The design and the treatment list follow the owner's printed catalog. Its origin
 
 ### Vercel
 
-Vercel deploys the site from GitHub through its Git integration (by default, pushes to `main` go to production). No settings are needed: the build detects Vercel and serves from the root of the project's production domain, which is also used for canonical links and the sitemap. Keep **Settings → Environment Variables → "Automatically expose System Environment Variables"** enabled (it is by default). `vercel.json` redirects URLs without a trailing slash and adds the security and caching headers.
+Vercel deploys the site from GitHub through its Git integration (by default, pushes to `main` go to production). The build detects Vercel and serves from the root; production builds use `https://www.pololasbeautystudio.com` (`PRODUCTION_SITE` in `astro.config.mjs`) for canonical links, the sitemap and structured data, and preview builds use their own URL. Keep **Settings → Environment Variables → "Automatically expose System Environment Variables"** enabled (it is by default). `vercel.json` redirects URLs without a trailing slash and adds the security and caching headers.
+
+One-time setup in the Vercel dashboard:
+
+1. **Settings → Domains:** add `www.pololasbeautystudio.com`, then add `pololasbeautystudio.com` and set it to redirect (308) to `www`. Optionally redirect `pololas-beauty-studio.vercel.app` to `www` too.
+2. At the domain registrar, create the DNS records Vercel shows for each domain (usually an `A` record for `@` and a `CNAME` for `www`). Vercel issues the HTTPS certificate once they resolve.
+3. **Speed Insights** tab: enable it. The site already includes `@vercel/speed-insights`, only in Vercel builds.
 
 `.github/workflows/ci.yml` runs lint, type checks and all tests on every push and pull request; it does not deploy.
 
@@ -63,11 +69,11 @@ The `Dockerfile` builds the site with Node and serves it with an unprivileged ng
 
 ```sh
 docker build -t pololas-beauty-studio .
-docker run --rm -p 8080:8080 pololas-beauty-studio
+docker run --rm -p 8080:8080 pololas-beauty-studio   # use another host port, e.g. -p 8089:8080, if 8080 is taken
 # open http://localhost:8080/
 ```
 
-For a real deployment, pass the public URL so canonical links, the sitemap, `robots.txt` and structured data point to it:
+Canonical links, the sitemap, `robots.txt` and structured data point to `https://www.pololasbeautystudio.com` by default. To serve the image under another domain, pass its URL:
 
 ```sh
 docker build --build-arg SITE=https://www.example.com -t pololas-beauty-studio .
